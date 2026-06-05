@@ -1,0 +1,31 @@
+# ============ Maven ============
+target/
+*.jar
+*.war
+*.ear
+.flattened-pom.xml
+
+# ============ IntelliJ ============
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ============ OS ============
+.DS_Store
+Thumbs.db
+
+# ============ Logs ============
+*.log
+logs/
+
+# ============ Env / secrets ============
+.env
+.env.local
+.env.*.local
+dev-keys/
+*.pem
+*.key
+
+# JWT dev signing keys
+.dev-keys/
