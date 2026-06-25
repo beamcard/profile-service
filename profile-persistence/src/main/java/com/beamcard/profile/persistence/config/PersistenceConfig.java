@@ -1,8 +1,12 @@
 package com.beamcard.profile.persistence.config;
 
+import com.beamcard.profile.domain.repository.LinkRepository;
 import com.beamcard.profile.domain.repository.ProfileRepository;
+import com.beamcard.profile.persistence.mapper.LinkPersistenceMapper;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
+import com.beamcard.profile.persistence.repository.LinkRepositoryImpl;
 import com.beamcard.profile.persistence.repository.ProfileRepositoryImpl;
+import com.beamcard.profile.persistence.repository.jpa.LinkJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
@@ -22,5 +26,16 @@ public class PersistenceConfig {
     public ProfileRepository profileRepository(
             ProfileJpaRepository profileJpaRepository, ProfilePersistenceMapper profilePersistenceMapper) {
         return new ProfileRepositoryImpl(profileJpaRepository, profilePersistenceMapper);
+    }
+
+    @Bean
+    public LinkPersistenceMapper linkPersistenceMapper() {
+        return Mappers.getMapper(LinkPersistenceMapper.class);
+    }
+
+    @Bean
+    public LinkRepository linkRepository(
+            LinkJpaRepository linkJpaRepository, LinkPersistenceMapper linkPersistenceMapper) {
+        return new LinkRepositoryImpl(linkJpaRepository, linkPersistenceMapper);
     }
 }

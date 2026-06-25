@@ -7,6 +7,10 @@ public interface ProfileService {
 
     Profile getOrProvision(UUID userId, String username);
 
+    Profile getByUserId(UUID userId);
+
+    Profile getByUsername(String username);
+
     Profile update(UUID userId, String username, UpdateProfileCommand command);
 
     record UpdateProfileCommand(String displayName, String bio) {}

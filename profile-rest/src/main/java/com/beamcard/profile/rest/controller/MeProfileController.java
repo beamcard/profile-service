@@ -1,12 +1,15 @@
 package com.beamcard.profile.rest.controller;
 
+import static com.beamcard.profile.rest.utils.JwtClaimsUtil.userId;
+import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
+
 import com.beamcard.profile.domain.model.Profile;
+import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -24,11 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeProfileController {
 
     private final ProfileService profileService;
+    private final LinkService linkService;
 
     @GetMapping
     public ProfileResponse getMyProfile(@AuthenticationPrincipal Jwt jwt) {
         Profile profile = profileService.getOrProvision(userId(jwt), username(jwt));
-        return ProfileResponse.of(profile);
+        return ProfileResponse.of(profile, linkService.listByProfileId(profile.getId()));
     }
 
     @PutMapping
@@ -36,14 +40,6 @@ public class MeProfileController {
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UpdateProfileRequest request) {
         Profile profile = profileService.update(
                 userId(jwt), username(jwt), new UpdateProfileCommand(request.displayName(), request.bio()));
-        return ProfileResponse.of(profile);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
-    }
-
-    private static String username(Jwt jwt) {
-        return jwt.getClaimAsString("username");
+        return ProfileResponse.of(profile, linkService.listByProfileId(profile.getId()));
     }
 }

@@ -1,11 +1,13 @@
 package com.beamcard.profile.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
@@ -60,6 +62,26 @@ class ProfileServiceImplTest {
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getUsername()).isEqualTo("alice");
         assertThat(captor.getValue().getId()).isNull(); // assigned by persistence
+    }
+
+    @Test
+    void getByUsername_returnsProfile_whenFound() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .build();
+        when(profileRepository.findByUsername("alice")).thenReturn(Optional.of(existing));
+
+        assertThat(service.getByUsername("alice")).isSameAs(existing);
+        verify(profileRepository, never()).save(any());
+    }
+
+    @Test
+    void getByUsername_throws_whenAbsent() {
+        when(profileRepository.findByUsername("ghost")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getByUsername("ghost")).isInstanceOf(ProfileNotFoundException.class);
     }
 
     @Test
