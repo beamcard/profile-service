@@ -1,5 +1,7 @@
 package com.beamcard.profile.rest.exception;
 
+import com.beamcard.profile.domain.exception.LinkNotFoundException;
+import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
@@ -20,6 +22,18 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(ProfileNotFoundException.class)
+    ProblemDetail handleProfileNotFound(ProfileNotFoundException ex) {
+        log.debug("Profile not found: {}", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "profile_not_found", "Profile not found.");
+    }
+
+    @ExceptionHandler(LinkNotFoundException.class)
+    ProblemDetail handleLinkNotFound(LinkNotFoundException ex) {
+        log.debug("Link not found: {}", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "link_not_found", "Link not found.");
+    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

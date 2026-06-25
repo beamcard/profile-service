@@ -1,5 +1,6 @@
 package com.beamcard.profile.domain.service;
 
+import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import java.util.UUID;
@@ -17,6 +18,18 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     public Profile getOrProvision(UUID userId, String username) {
         return profileRepository.findByUserId(userId).orElseGet(() -> provision(userId, username));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Profile getByUserId(UUID userId) {
+        return profileRepository.findByUserId(userId).orElseThrow(() -> new ProfileNotFoundException(userId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Profile getByUsername(String username) {
+        return profileRepository.findByUsername(username).orElseThrow(() -> new ProfileNotFoundException(username));
     }
 
     @Override

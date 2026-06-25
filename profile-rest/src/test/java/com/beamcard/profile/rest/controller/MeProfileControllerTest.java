@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.beamcard.profile.domain.model.Profile;
+import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.util.UUID;
@@ -32,6 +33,9 @@ class MeProfileControllerTest {
 
     @MockBean
     ProfileService profileService;
+
+    @MockBean
+    LinkService linkService;
 
     @MockBean
     JwtDecoder jwtDecoder;
