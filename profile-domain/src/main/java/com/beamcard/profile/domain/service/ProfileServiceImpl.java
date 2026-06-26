@@ -47,6 +47,13 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.save(builder.build());
     }
 
+    @Override
+    @Transactional
+    public Profile setAvatar(UUID userId, String avatarKey) {
+        Profile current = getByUserId(userId);
+        return profileRepository.save(current.toBuilder().avatarKey(avatarKey).build());
+    }
+
     private Profile provision(UUID userId, String username) {
         Profile created = profileRepository.save(
                 Profile.builder().userId(userId).username(username).build());

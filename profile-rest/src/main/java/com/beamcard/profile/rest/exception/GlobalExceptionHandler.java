@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.exception;
 
+import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.exception.LinkNotFoundException;
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -33,6 +34,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail handleLinkNotFound(LinkNotFoundException ex) {
         log.debug("Link not found: {}", ex.getMessage());
         return problem(HttpStatus.NOT_FOUND, "link_not_found", "Link not found.");
+    }
+
+    @ExceptionHandler(InvalidAvatarException.class)
+    ProblemDetail handleInvalidAvatar(InvalidAvatarException ex) {
+        log.debug("Invalid avatar: {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "invalid_avatar", ex.getMessage());
     }
 
     @Override

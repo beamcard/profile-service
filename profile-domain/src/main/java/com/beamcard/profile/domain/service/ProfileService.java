@@ -13,5 +13,7 @@ public interface ProfileService {
 
     Profile update(UUID userId, String username, UpdateProfileCommand command);
 
+    Profile setAvatar(UUID userId, String avatarKey);
+
     record UpdateProfileCommand(String displayName, String bio) {}
 }

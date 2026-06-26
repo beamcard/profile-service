@@ -15,6 +15,7 @@ public class Profile {
     String username;
     String displayName;
     String bio;
+    String avatarKey;
     Instant createdAt;
     Instant updatedAt;
 }

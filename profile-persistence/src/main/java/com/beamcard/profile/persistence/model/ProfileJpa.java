@@ -42,6 +42,9 @@ public class ProfileJpa {
     @Column(name = "bio")
     private String bio;
 
+    @Column(name = "avatar_key")
+    private String avatarKey;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 

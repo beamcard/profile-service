@@ -24,6 +24,20 @@ spring:
         jwt:
           jwk-set-uri: ${JWKS_URI:http://localhost:8070/.well-known/jwks.json}
 
+beamcard:
+  avatar:
+    bucket: ${AVATAR_BUCKET:beamcard-avatars}
+    region: ${AVATAR_REGION:eu-central-1}
+    endpoint: ${AVATAR_ENDPOINT:http://localhost:9000} # Local MinIO
+    access-key: ${AVATAR_ACCESS_KEY:beamcard}
+    secret-key: ${AVATAR_SECRET_KEY:beamcard-secret}
+    path-style: ${AVATAR_PATH_STYLE:true}
+    ensure-bucket: ${AVATAR_ENSURE_BUCKET:true}
+    public-base-url: ${AVATAR_PUBLIC_BASE_URL:http://localhost:9000/beamcard-avatars}
+    presign-ttl-seconds: 300
+    max-size-bytes: 2097152 # 2 MB
+    allowed-content-types: image/png,image/jpeg,image/webp
+
 server:
   port: 8090
 
