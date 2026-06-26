@@ -11,16 +11,18 @@ public record ProfileResponse(
         String username,
         String displayName,
         String bio,
+        String avatarUrl,
         Instant createdAt,
         Instant updatedAt,
         List<LinkResponse> links) {
 
-    public static ProfileResponse of(Profile profile, List<Link> links) {
+    public static ProfileResponse of(Profile profile, List<Link> links, String avatarUrl) {
         return new ProfileResponse(
                 profile.getId(),
                 profile.getUsername(),
                 profile.getDisplayName(),
                 profile.getBio(),
+                avatarUrl,
                 profile.getCreatedAt(),
                 profile.getUpdatedAt(),
                 links.stream().map(LinkResponse::of).toList());

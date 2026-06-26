@@ -11,6 +11,7 @@ import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
+import com.beamcard.profile.domain.storage.AvatarStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class PublicProfileControllerTest {
 
     @MockBean
     LinkService linkService;
+
+    @MockBean
+    AvatarStorage avatarStorage;
 
     @MockBean
     JwtDecoder jwtDecoder;

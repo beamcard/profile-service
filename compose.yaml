@@ -16,5 +16,25 @@ services:
       timeout: 3s
       retries: 5
 
+  minio:
+    image: minio/minio:latest
+    container_name: beamcard-profile-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: beamcard
+      MINIO_ROOT_PASSWORD: beamcard-secret
+      MINIO_API_CORS_ALLOW_ORIGIN: "http://localhost:5173"
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # web console
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
   postgres-data:
+  minio-data:
