@@ -1,0 +1,16 @@
+# Production overrides (SPRING_PROFILES_ACTIVE=prod).
+# Local dev keeps application.yml (Eureka + docker-compose Postgres + MinIO).
+# Avatar (beamcard.avatar.*) and jwk-set-uri are already env-driven in application.yml —
+# in prod set AVATAR_* to the Supabase Storage values and AVATAR_ENSURE_BUCKET=false.
+spring:
+  datasource:
+    url: ${DB_URL} # Supabase pooled URL, e.g. jdbc:postgresql://...:6543/postgres?currentSchema=profile_svc
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:5}
+
+# No service discovery in prod.
+eureka:
+  client:
+    enabled: false
