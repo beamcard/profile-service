@@ -2,6 +2,9 @@
 # Local dev keeps application.yml (Eureka + docker-compose Postgres + MinIO).
 # Avatar (beamcard.avatar.*) and jwk-set-uri are already env-driven in application.yml —
 # in prod set AVATAR_* to the Supabase Storage values and AVATAR_ENSURE_BUCKET=false.
+server:
+  port: ${PORT:8090} # Railway injects $PORT
+
 spring:
   datasource:
     url: ${DB_URL} # Supabase pooled URL, e.g. jdbc:postgresql://...:6543/postgres?currentSchema=profile_svc
