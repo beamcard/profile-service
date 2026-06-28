@@ -37,6 +37,7 @@
         <palantir-java-format.version>2.50.0</palantir-java-format.version>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <awssdk.version>2.29.20</awssdk.version>
+        <qrcodegen.version>1.8.0</qrcodegen.version>
 
         <mockito.version>5.15.2</mockito.version>
     </properties>
@@ -76,6 +77,11 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.nayuki</groupId>
+                <artifactId>qrcodegen</artifactId>
+                <version>${qrcodegen.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
