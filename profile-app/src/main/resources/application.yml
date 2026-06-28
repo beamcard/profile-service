@@ -25,6 +25,8 @@ spring:
           jwk-set-uri: ${JWKS_URI:http://localhost:8070/.well-known/jwks.json}
 
 beamcard:
+  web:
+    public-url: ${WEB_PUBLIC_URL:http://localhost:5173}
   avatar:
     bucket: ${AVATAR_BUCKET:beamcard-avatars}
     region: ${AVATAR_REGION:eu-central-1}
