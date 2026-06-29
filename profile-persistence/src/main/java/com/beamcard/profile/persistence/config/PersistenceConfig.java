@@ -6,6 +6,7 @@ import com.beamcard.profile.persistence.mapper.LinkPersistenceMapper;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
 import com.beamcard.profile.persistence.repository.LinkRepositoryImpl;
 import com.beamcard.profile.persistence.repository.ProfileRepositoryImpl;
+import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.LinkJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -27,8 +28,10 @@ public class PersistenceConfig {
     public ProfileRepository profileRepository(
             ProfileJpaRepository profileJpaRepository,
             ProfileLocationJpaRepository profileLocationJpaRepository,
+            AffiliationJpaRepository affiliationJpaRepository,
             ProfilePersistenceMapper profilePersistenceMapper) {
-        return new ProfileRepositoryImpl(profileJpaRepository, profileLocationJpaRepository, profilePersistenceMapper);
+        return new ProfileRepositoryImpl(
+                profileJpaRepository, profileLocationJpaRepository, affiliationJpaRepository, profilePersistenceMapper);
     }
 
     @Bean

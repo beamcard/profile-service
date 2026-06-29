@@ -29,7 +29,4 @@ public class ProfileLocationJpa {
 
     @Column(name = "city", length = 85)
     private String city;
-
-    @Column(name = "address", length = 200)
-    private String address;
 }

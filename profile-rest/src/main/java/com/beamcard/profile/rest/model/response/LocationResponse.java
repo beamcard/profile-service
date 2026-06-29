@@ -1,15 +1,13 @@
 package com.beamcard.profile.rest.model.response;
 
 import com.beamcard.profile.domain.model.Location;
-import com.beamcard.profile.domain.model.Profile;
 
-public record LocationResponse(String country, String city, String address) {
+public record LocationResponse(String country, String city) {
 
-    public static LocationResponse of(Profile profile) {
-        Location location = profile.getLocation();
+    public static LocationResponse of(Location location) {
         if (location == null || location.isEmpty()) {
             return null;
         }
-        return new LocationResponse(location.country(), location.city(), location.address());
+        return new LocationResponse(location.country(), location.city());
     }
 }

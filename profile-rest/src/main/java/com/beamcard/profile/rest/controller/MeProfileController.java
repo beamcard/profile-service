@@ -3,17 +3,20 @@ package com.beamcard.profile.rest.controller;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.userId;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
+import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.rest.model.request.AffiliationRequest;
 import com.beamcard.profile.rest.model.request.LocationRequest;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -51,10 +54,18 @@ public class MeProfileController {
                 new UpdateProfileCommand(
                         request.displayName(),
                         request.bio(),
-                        location == null
-                                ? null
-                                : new Location(location.country(), location.city(), location.address())));
+                        location == null ? null : new Location(location.country(), location.city()),
+                        toAffiliations(request.affiliations())));
         return ProfileResponse.of(
                 profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+    }
+
+    private static List<Affiliation> toAffiliations(List<AffiliationRequest> requests) {
+        if (requests == null) {
+            return null;
+        }
+        return requests.stream()
+                .map(r -> new Affiliation(r.role(), r.organization(), r.address(), r.description()))
+                .toList();
     }
 }

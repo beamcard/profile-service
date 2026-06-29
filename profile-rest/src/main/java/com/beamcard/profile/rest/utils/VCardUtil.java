@@ -2,6 +2,7 @@ package com.beamcard.profile.rest.utils;
 
 import static org.springframework.util.StringUtils.hasText;
 
+import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Link;
 import com.beamcard.profile.domain.model.LinkType;
 import com.beamcard.profile.domain.model.Location;
@@ -19,6 +20,7 @@ public final class VCardUtil {
 
     public static String toVCard(Profile profile, List<Link> links, String avatarUrl) {
         String name = hasText(profile.getDisplayName()) ? profile.getDisplayName() : profile.getUsername();
+        List<Affiliation> affiliations = profile.getAffiliations() == null ? List.of() : profile.getAffiliations();
 
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN:VCARD").append(CRLF);
@@ -26,13 +28,26 @@ public final class VCardUtil {
         sb.append("FN:").append(escape(name)).append(CRLF);
         sb.append("N:").append(structuredName(name)).append(CRLF);
 
+        affiliations.stream().filter(a -> hasText(a.organization())).findFirst().ifPresent(a -> sb.append("ORG:")
+                .append(escape(a.organization()))
+                .append(CRLF));
+        affiliations.stream().filter(a -> hasText(a.role())).findFirst().ifPresent(a -> sb.append("TITLE:")
+                .append(escape(a.role()))
+                .append(CRLF));
+
         if (hasText(profile.getBio())) {
             sb.append("NOTE:").append(escape(profile.getBio())).append(CRLF);
         }
 
-        String adr = address(profile);
-        if (adr != null) {
-            sb.append(adr).append(CRLF);
+        Location primary = profile.getLocation();
+        for (Affiliation affiliation : affiliations) {
+            String adr = address(affiliation, primary);
+            if (adr != null) {
+                sb.append(adr).append(CRLF);
+            }
+        }
+        if (affiliations.isEmpty() && primary != null && !primary.isEmpty()) {
+            sb.append(adr("", primary)).append(CRLF);
         }
 
         for (Link link : links) {
@@ -61,14 +76,18 @@ public final class VCardUtil {
         return family + ";" + given + ";;;";
     }
 
-    private static String address(Profile profile) {
-        Location location = profile.getLocation();
-        if (location == null || location.isEmpty()) {
+    private static String address(Affiliation affiliation, Location primary) {
+        boolean hasStreet = hasText(affiliation.address());
+        boolean hasPrimary = primary != null && !primary.isEmpty();
+        if (!hasStreet && !hasPrimary) {
             return null;
         }
-        String street = blankToEmpty(location.address());
-        String city = blankToEmpty(location.city());
-        String country = blankToEmpty(location.country());
+        return adr(blankToEmpty(affiliation.address()), primary);
+    }
+
+    private static String adr(String street, Location primary) {
+        String city = primary == null ? "" : blankToEmpty(primary.city());
+        String country = primary == null ? "" : blankToEmpty(primary.country());
         return "ADR;TYPE=WORK:;;" + escape(street) + ";" + escape(city) + ";;;" + escape(country);
     }
 
