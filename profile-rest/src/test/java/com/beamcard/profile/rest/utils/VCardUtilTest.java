@@ -2,6 +2,7 @@ package com.beamcard.profile.rest.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Link;
 import com.beamcard.profile.domain.model.LinkType;
 import com.beamcard.profile.domain.model.Location;
@@ -22,13 +23,14 @@ class VCardUtilTest {
                 .build();
     }
 
-    private Profile profileWithLocation(String country, String city, String address) {
+    private Profile profileWith(Location location, Affiliation... affiliations) {
         return Profile.builder()
                 .id(UUID.randomUUID())
                 .userId(UUID.randomUUID())
                 .username("alice")
                 .displayName("Alice")
-                .location(new Location(country, city, address))
+                .location(location)
+                .affiliations(List.of(affiliations))
                 .build();
     }
 
@@ -72,15 +74,37 @@ class VCardUtilTest {
     }
 
     @Test
-    void emitsWorkAddress_whenLocationPresent() {
-        String vcf = VCardUtil.toVCard(profileWithLocation("Austria", "Vienna", "Stephansplatz 1"), List.of(), null);
+    void usesPrimaryAffiliationForOrgAndTitle() {
+        Profile profile = profileWith(
+                null,
+                new Affiliation("Product Designer", "Acme", null, null),
+                new Affiliation("Advisor", "OtherCo", null, null));
 
-        assertThat(vcf).contains("ADR;TYPE=WORK:;;Stephansplatz 1;Vienna;;;Austria\r\n");
+        String vcf = VCardUtil.toVCard(profile, List.of(), null);
+
+        assertThat(vcf).contains("ORG:Acme\r\n");
+        assertThat(vcf).contains("TITLE:Product Designer\r\n");
+        assertThat(vcf).doesNotContain("OtherCo");
     }
 
     @Test
-    void omitsAddress_whenNoLocation() {
-        String vcf = VCardUtil.toVCard(profileWithLocation(null, null, null), List.of(), null);
+    void emitsWorkAddressPerWorkplace_withSharedPrimaryCityCountry() {
+        Profile profile = profileWith(
+                new Location("Austria", "Vienna"),
+                new Affiliation("Trainer", "FitGym", "Stephansplatz 1", null),
+                new Affiliation("Trainer", "PowerHouse", "Hauptplatz 2", null));
+
+        String vcf = VCardUtil.toVCard(profile, List.of(), null);
+
+        // Each workplace street + the profile's shared Vienna, Austria.
+        assertThat(vcf).contains("ADR;TYPE=WORK:;;Stephansplatz 1;Vienna;;;Austria\r\n");
+        assertThat(vcf).contains("ADR;TYPE=WORK:;;Hauptplatz 2;Vienna;;;Austria\r\n");
+        assertThat(vcf.split("ADR;TYPE=WORK:", -1)).hasSize(3);
+    }
+
+    @Test
+    void omitsAddress_whenNoStreetAndNoPrimaryLocation() {
+        String vcf = VCardUtil.toVCard(profileWith(null, new Affiliation("Dev", "Acme", null, null)), List.of(), null);
 
         assertThat(vcf).doesNotContain("ADR");
     }

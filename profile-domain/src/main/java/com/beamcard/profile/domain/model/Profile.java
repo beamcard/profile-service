@@ -1,6 +1,7 @@
 package com.beamcard.profile.domain.model;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class Profile {
     String displayName;
     String bio;
     Location location;
+    List<Affiliation> affiliations;
     String avatarKey;
     Instant createdAt;
     Instant updatedAt;

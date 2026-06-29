@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.LinkService;
@@ -19,6 +20,7 @@ import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.AvatarStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -95,12 +97,13 @@ class MeProfileControllerTest {
     }
 
     @Test
-    void putMe_acceptsNestedLocation_andReturnsItNested() throws Exception {
+    void putMe_acceptsPrimaryLocationAndAffiliations_andReturnsThem() throws Exception {
         Profile updated = Profile.builder()
                 .id(UUID.randomUUID())
                 .userId(USER_ID)
                 .username("alice")
-                .location(new Location("Austria", "Vienna", "Stephansplatz 1"))
+                .location(new Location("Austria", "Vienna"))
+                .affiliations(List.of(new Affiliation("Trainer", "FitGym", "Stephansplatz 1", "Entrance B")))
                 .build();
         when(profileService.update(eq(USER_ID), eq("alice"), any())).thenReturn(updated);
 
@@ -109,16 +112,20 @@ class MeProfileControllerTest {
                                 .with(aliceToken())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
-                                        "{\"location\":{\"country\":\"Austria\",\"city\":\"Vienna\",\"address\":\"Stephansplatz 1\"}}"))
+                                        "{\"location\":{\"country\":\"Austria\",\"city\":\"Vienna\"},\"affiliations\":[{\"role\":\"Trainer\",\"organization\":\"FitGym\",\"address\":\"Stephansplatz 1\",\"description\":\"Entrance B\"}]}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.location.country").value("Austria"))
                 .andExpect(jsonPath("$.location.city").value("Vienna"))
-                .andExpect(jsonPath("$.location.address").value("Stephansplatz 1"));
+                .andExpect(jsonPath("$.affiliations[0].role").value("Trainer"))
+                .andExpect(jsonPath("$.affiliations[0].organization").value("FitGym"))
+                .andExpect(jsonPath("$.affiliations[0].address").value("Stephansplatz 1"))
+                .andExpect(jsonPath("$.affiliations[0].description").value("Entrance B"));
 
         ArgumentCaptor<UpdateProfileCommand> cmd = ArgumentCaptor.forClass(UpdateProfileCommand.class);
         verify(profileService).update(eq(USER_ID), eq("alice"), cmd.capture());
-        assertThat(cmd.getValue().location().country()).isEqualTo("Austria");
         assertThat(cmd.getValue().location().city()).isEqualTo("Vienna");
+        assertThat(cmd.getValue().affiliations()).hasSize(1);
+        assertThat(cmd.getValue().affiliations().getFirst().address()).isEqualTo("Stephansplatz 1");
     }
 
     @Test

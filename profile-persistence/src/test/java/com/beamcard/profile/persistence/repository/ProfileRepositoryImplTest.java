@@ -2,17 +2,20 @@ package com.beamcard.profile.persistence.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
+import com.beamcard.profile.persistence.model.AffiliationJpa;
 import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
+import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +35,9 @@ class ProfileRepositoryImplTest {
     @Mock
     ProfileLocationJpaRepository locationRepository;
 
+    @Mock
+    AffiliationJpaRepository affiliationRepository;
+
     final ProfilePersistenceMapper mapper = Mappers.getMapper(ProfilePersistenceMapper.class);
 
     ProfileRepositoryImpl repository;
@@ -41,7 +47,7 @@ class ProfileRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        repository = new ProfileRepositoryImpl(jpaRepository, locationRepository, mapper);
+        repository = new ProfileRepositoryImpl(jpaRepository, locationRepository, affiliationRepository, mapper);
         profileId = UUID.randomUUID();
         userId = UUID.randomUUID();
     }
@@ -55,68 +61,81 @@ class ProfileRepositoryImplTest {
     }
 
     @Test
-    void findByUserId_mergesLocationFromChildTable() {
+    void findByUserId_composesPrimaryLocationAndOrderedAffiliations() {
         when(jpaRepository.findByUserId(userId)).thenReturn(Optional.of(profileJpa()));
         when(locationRepository.findById(profileId))
                 .thenReturn(Optional.of(ProfileLocationJpa.builder()
                         .profileId(profileId)
                         .country("Austria")
                         .city("Vienna")
-                        .address("Stephansplatz 1")
                         .build()));
+        when(affiliationRepository.findByProfileIdOrderByPositionAsc(profileId))
+                .thenReturn(List.of(
+                        AffiliationJpa.builder()
+                                .profileId(profileId)
+                                .role("Trainer")
+                                .organization("FitGym")
+                                .address("Stephansplatz 1")
+                                .position(0)
+                                .build(),
+                        AffiliationJpa.builder()
+                                .profileId(profileId)
+                                .role("Trainer")
+                                .organization("PowerHouse")
+                                .position(1)
+                                .build()));
 
         Profile result = repository.findByUserId(userId).orElseThrow();
 
         assertThat(result.getLocation().country()).isEqualTo("Austria");
         assertThat(result.getLocation().city()).isEqualTo("Vienna");
-        assertThat(result.getLocation().address()).isEqualTo("Stephansplatz 1");
+        assertThat(result.getAffiliations()).hasSize(2);
+        assertThat(result.getAffiliations().get(0).organization()).isEqualTo("FitGym");
+        assertThat(result.getAffiliations().get(0).address()).isEqualTo("Stephansplatz 1");
+        assertThat(result.getAffiliations().get(1).address()).isNull();
     }
 
     @Test
     void findByUserId_noLocationRow_leavesLocationNull() {
         when(jpaRepository.findByUserId(userId)).thenReturn(Optional.of(profileJpa()));
         when(locationRepository.findById(profileId)).thenReturn(Optional.empty());
+        when(affiliationRepository.findByProfileIdOrderByPositionAsc(profileId)).thenReturn(List.of());
 
         Profile result = repository.findByUserId(userId).orElseThrow();
 
         assertThat(result.getLocation()).isNull();
+        assertThat(result.getAffiliations()).isEmpty();
     }
 
     @Test
-    void save_upsertsLocationRow_whenLocationPresent() {
+    void save_upsertsPrimaryLocation_andReplacesAffiliations_skippingBlank() {
         Profile domain = Profile.builder()
                 .id(profileId)
                 .userId(userId)
                 .username("alice")
-                .location(new Location("Austria", "Vienna", null))
+                .location(new Location("Austria", "Vienna"))
+                .affiliations(List.of(
+                        new Affiliation("Trainer", "FitGym", "Stephansplatz 1", "Entrance B"),
+                        new Affiliation("  ", null, "  ", null), // blank → skipped
+                        new Affiliation(null, "PowerHouse", null, null)))
                 .build();
         when(jpaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(locationRepository.findById(profileId)).thenReturn(Optional.empty());
+        when(affiliationRepository.findByProfileIdOrderByPositionAsc(profileId)).thenReturn(List.of());
 
         repository.save(domain);
 
-        ArgumentCaptor<ProfileLocationJpa> captor = ArgumentCaptor.forClass(ProfileLocationJpa.class);
-        verify(locationRepository).save(captor.capture());
-        assertThat(captor.getValue().getProfileId()).isEqualTo(profileId);
-        assertThat(captor.getValue().getCountry()).isEqualTo("Austria");
-        assertThat(captor.getValue().getCity()).isEqualTo("Vienna");
-        assertThat(captor.getValue().getAddress()).isNull();
-        verify(locationRepository, never()).deleteById(any());
-    }
+        ArgumentCaptor<ProfileLocationJpa> loc = ArgumentCaptor.forClass(ProfileLocationJpa.class);
+        verify(locationRepository).save(loc.capture());
+        assertThat(loc.getValue().getCity()).isEqualTo("Vienna");
 
-    @Test
-    void save_deletesLocationRow_whenAllFieldsBlank() {
-        Profile domain = Profile.builder()
-                .id(profileId)
-                .userId(userId)
-                .username("alice")
-                .location(new Location("  ", null, null))
-                .build();
-        when(jpaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(locationRepository.existsById(profileId)).thenReturn(true);
-
-        repository.save(domain);
-
-        verify(locationRepository).deleteById(profileId);
-        verify(locationRepository, never()).save(any());
+        verify(affiliationRepository).deleteByProfileId(profileId);
+        ArgumentCaptor<AffiliationJpa> aff = ArgumentCaptor.forClass(AffiliationJpa.class);
+        verify(affiliationRepository, org.mockito.Mockito.times(2)).save(aff.capture());
+        assertThat(aff.getAllValues().get(0).getOrganization()).isEqualTo("FitGym");
+        assertThat(aff.getAllValues().get(0).getDescription()).isEqualTo("Entrance B");
+        assertThat(aff.getAllValues().get(0).getPosition()).isEqualTo(0);
+        assertThat(aff.getAllValues().get(1).getOrganization()).isEqualTo("PowerHouse");
+        assertThat(aff.getAllValues().get(1).getPosition()).isEqualTo(1);
     }
 }
