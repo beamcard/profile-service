@@ -8,6 +8,7 @@ import com.beamcard.profile.persistence.repository.LinkRepositoryImpl;
 import com.beamcard.profile.persistence.repository.ProfileRepositoryImpl;
 import com.beamcard.profile.persistence.repository.jpa.LinkJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +25,10 @@ public class PersistenceConfig {
 
     @Bean
     public ProfileRepository profileRepository(
-            ProfileJpaRepository profileJpaRepository, ProfilePersistenceMapper profilePersistenceMapper) {
-        return new ProfileRepositoryImpl(profileJpaRepository, profilePersistenceMapper);
+            ProfileJpaRepository profileJpaRepository,
+            ProfileLocationJpaRepository profileLocationJpaRepository,
+            ProfilePersistenceMapper profilePersistenceMapper) {
+        return new ProfileRepositoryImpl(profileJpaRepository, profileLocationJpaRepository, profilePersistenceMapper);
     }
 
     @Bean

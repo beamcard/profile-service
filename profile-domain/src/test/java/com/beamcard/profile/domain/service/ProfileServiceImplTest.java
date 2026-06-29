@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
+import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
@@ -96,10 +97,13 @@ class ProfileServiceImplTest {
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
         when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Profile result = service.update(userId, "alice", new UpdateProfileCommand("New name", null));
+        Profile result = service.update(
+                userId, "alice", new UpdateProfileCommand("New name", null, new Location("Austria", "Vienna", null)));
 
         assertThat(result.getDisplayName()).isEqualTo("New name");
         assertThat(result.getBio()).isEqualTo("keep me");
+        assertThat(result.getLocation().country()).isEqualTo("Austria");
+        assertThat(result.getLocation().city()).isEqualTo("Vienna");
         assertThat(result.getUsername()).isEqualTo("alice");
     }
 }

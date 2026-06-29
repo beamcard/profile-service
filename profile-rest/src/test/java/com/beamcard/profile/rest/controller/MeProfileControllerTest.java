@@ -1,7 +1,9 @@
 package com.beamcard.profile.rest.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,13 +12,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
+import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.AvatarStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -87,6 +92,33 @@ class MeProfileControllerTest {
                         .content("{\"display_name\":\"New name\",\"bio\":\"Guide\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.display_name").value("New name"));
+    }
+
+    @Test
+    void putMe_acceptsNestedLocation_andReturnsItNested() throws Exception {
+        Profile updated = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(USER_ID)
+                .username("alice")
+                .location(new Location("Austria", "Vienna", "Stephansplatz 1"))
+                .build();
+        when(profileService.update(eq(USER_ID), eq("alice"), any())).thenReturn(updated);
+
+        mockMvc.perform(
+                        put("/me/profile")
+                                .with(aliceToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"location\":{\"country\":\"Austria\",\"city\":\"Vienna\",\"address\":\"Stephansplatz 1\"}}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.location.country").value("Austria"))
+                .andExpect(jsonPath("$.location.city").value("Vienna"))
+                .andExpect(jsonPath("$.location.address").value("Stephansplatz 1"));
+
+        ArgumentCaptor<UpdateProfileCommand> cmd = ArgumentCaptor.forClass(UpdateProfileCommand.class);
+        verify(profileService).update(eq(USER_ID), eq("alice"), cmd.capture());
+        assertThat(cmd.getValue().location().country()).isEqualTo("Austria");
+        assertThat(cmd.getValue().location().city()).isEqualTo("Vienna");
     }
 
     @Test

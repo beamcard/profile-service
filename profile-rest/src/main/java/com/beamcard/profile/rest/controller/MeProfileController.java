@@ -3,11 +3,13 @@ package com.beamcard.profile.rest.controller;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.userId;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
+import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.rest.model.request.LocationRequest;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
@@ -42,8 +44,16 @@ public class MeProfileController {
     @PutMapping
     public ProfileResponse updateMyProfile(
             @AuthenticationPrincipal Jwt jwt, @Valid @RequestBody UpdateProfileRequest request) {
+        LocationRequest location = request.location();
         Profile profile = profileService.update(
-                userId(jwt), username(jwt), new UpdateProfileCommand(request.displayName(), request.bio()));
+                userId(jwt),
+                username(jwt),
+                new UpdateProfileCommand(
+                        request.displayName(),
+                        request.bio(),
+                        location == null
+                                ? null
+                                : new Location(location.country(), location.city(), location.address())));
         return ProfileResponse.of(
                 profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
     }
