@@ -1,0 +1,7 @@
+package com.beamcard.profile.persistence.repository.jpa;
+
+import com.beamcard.profile.persistence.model.ProfileLocationJpa;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProfileLocationJpaRepository extends JpaRepository<ProfileLocationJpa, UUID> {}

@@ -1,5 +1,6 @@
 package com.beamcard.profile.domain.service;
 
+import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import java.util.UUID;
 
@@ -15,5 +16,5 @@ public interface ProfileService {
 
     Profile setAvatar(UUID userId, String avatarKey);
 
-    record UpdateProfileCommand(String displayName, String bio) {}
+    record UpdateProfileCommand(String displayName, String bio, Location location) {}
 }
