@@ -1,7 +1,7 @@
 package com.beamcard.profile.domain.service;
 
 import com.beamcard.profile.domain.model.Profile;
-import com.beamcard.profile.domain.storage.AvatarStorage.PresignedUpload;
+import com.beamcard.profile.domain.storage.MediaStorage.PresignedUpload;
 import java.util.UUID;
 
 public interface AvatarService {

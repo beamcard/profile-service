@@ -1,12 +1,11 @@
 package com.beamcard.profile.persistence.storage;
 
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.persistence.config.AvatarProperties;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
@@ -18,8 +17,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @RequiredArgsConstructor
-@Slf4j
-public class S3AvatarStorage implements AvatarStorage {
+public class S3MediaStorage implements MediaStorage {
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -64,7 +62,6 @@ public class S3AvatarStorage implements AvatarStorage {
     @Override
     public void delete(String key) {
         s3Client.deleteObject(b -> b.bucket(properties.bucket()).key(key));
-        log.debug("Deleted avatar object {}", key);
     }
 
     @Override

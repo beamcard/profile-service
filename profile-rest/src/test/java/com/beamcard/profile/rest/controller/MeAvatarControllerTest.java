@@ -9,9 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.service.AvatarService;
+import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
-import com.beamcard.profile.domain.storage.AvatarStorage;
-import com.beamcard.profile.domain.storage.AvatarStorage.PresignedUpload;
+import com.beamcard.profile.domain.storage.MediaStorage;
+import com.beamcard.profile.domain.storage.MediaStorage.PresignedUpload;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.time.Instant;
 import java.util.UUID;
@@ -36,10 +37,13 @@ class MeAvatarControllerTest {
     AvatarService avatarService;
 
     @MockBean
+    AwardService awardService;
+
+    @MockBean
     LinkService linkService;
 
     @MockBean
-    AvatarStorage avatarStorage;
+    MediaStorage mediaStorage;
 
     @MockBean
     JwtDecoder jwtDecoder;

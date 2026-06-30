@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.model.Profile;
-import com.beamcard.profile.domain.storage.AvatarStorage;
-import com.beamcard.profile.domain.storage.AvatarStorage.PresignedUpload;
-import com.beamcard.profile.domain.storage.AvatarStorage.StoredObject;
+import com.beamcard.profile.domain.storage.MediaStorage;
+import com.beamcard.profile.domain.storage.MediaStorage.PresignedUpload;
+import com.beamcard.profile.domain.storage.MediaStorage.StoredObject;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,7 @@ class AvatarServiceImplTest {
     ProfileService profileService;
 
     @Mock
-    AvatarStorage avatarStorage;
+    MediaStorage avatarStorage;
 
     AvatarServiceImpl service;
 

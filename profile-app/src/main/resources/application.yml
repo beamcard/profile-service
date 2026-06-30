@@ -39,6 +39,9 @@ beamcard:
     presign-ttl-seconds: 300
     max-size-bytes: 2097152 # 2 MB
     allowed-content-types: image/png,image/jpeg,image/webp
+  award:
+    max-size-bytes: ${AWARD_MAX_SIZE_BYTES:5242880} # 5 MB
+    allowed-content-types: image/png,image/jpeg,image/webp
 
 server:
   port: 8090
