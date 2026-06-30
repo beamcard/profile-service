@@ -17,9 +17,10 @@ public record ProfileResponse(
         String avatarUrl,
         Instant createdAt,
         Instant updatedAt,
-        List<LinkResponse> links) {
+        List<LinkResponse> links,
+        List<AwardResponse> awards) {
 
-    public static ProfileResponse of(Profile profile, List<Link> links, String avatarUrl) {
+    public static ProfileResponse of(Profile profile, List<Link> links, String avatarUrl, List<AwardResponse> awards) {
         List<Affiliation> affiliations = profile.getAffiliations() == null ? List.of() : profile.getAffiliations();
         return new ProfileResponse(
                 profile.getId(),
@@ -31,6 +32,7 @@ public record ProfileResponse(
                 avatarUrl,
                 profile.getCreatedAt(),
                 profile.getUpdatedAt(),
-                links.stream().map(LinkResponse::of).toList());
+                links.stream().map(LinkResponse::of).toList(),
+                awards);
     }
 }

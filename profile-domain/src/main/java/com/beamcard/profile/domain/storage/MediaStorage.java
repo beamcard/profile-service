@@ -3,7 +3,10 @@ package com.beamcard.profile.domain.storage;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface AvatarStorage {
+/**
+ * Object storage for profile media
+ */
+public interface MediaStorage {
 
     PresignedUpload presignUpload(String key, String contentType);
 

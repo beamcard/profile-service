@@ -5,11 +5,13 @@ import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AvatarService;
+import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.model.request.AvatarUploadUrlRequest;
 import com.beamcard.profile.rest.model.request.ConfirmAvatarRequest;
 import com.beamcard.profile.rest.model.response.AvatarUploadResponse;
+import com.beamcard.profile.rest.model.response.AwardResponse;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import jakarta.validation.Valid;
@@ -31,8 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeAvatarController {
 
     private final AvatarService avatarService;
+    private final AwardService awardService;
     private final LinkService linkService;
-    private final AvatarStorage avatarStorage;
+    private final MediaStorage mediaStorage;
 
     @PostMapping("/upload-url")
     public AvatarUploadResponse uploadUrl(
@@ -42,15 +45,19 @@ public class MeAvatarController {
 
     @PutMapping
     public ProfileResponse confirm(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ConfirmAvatarRequest request) {
-        Profile profile = avatarService.confirm(userId(jwt), request.key());
-        return ProfileResponse.of(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+        return toResponse(avatarService.confirm(userId(jwt), request.key()));
     }
 
     @DeleteMapping
     public ProfileResponse remove(@AuthenticationPrincipal Jwt jwt) {
-        Profile profile = avatarService.remove(userId(jwt));
+        return toResponse(avatarService.remove(userId(jwt)));
+    }
+
+    private ProfileResponse toResponse(Profile profile) {
         return ProfileResponse.of(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+                profile,
+                linkService.listByProfileId(profile.getId()),
+                AvatarUrlUtil.of(mediaStorage, profile),
+                AwardResponse.listOf(awardService.listForDisplay(profile.getId())));
     }
 }

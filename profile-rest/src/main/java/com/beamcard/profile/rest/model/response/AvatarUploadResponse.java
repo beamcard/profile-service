@@ -1,6 +1,6 @@
 package com.beamcard.profile.rest.model.response;
 
-import com.beamcard.profile.domain.storage.AvatarStorage.PresignedUpload;
+import com.beamcard.profile.domain.storage.MediaStorage.PresignedUpload;
 import java.time.Instant;
 
 public record AvatarUploadResponse(String uploadUrl, String key, Instant expiresAt) {

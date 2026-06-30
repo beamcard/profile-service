@@ -6,13 +6,15 @@ import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
+import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.model.request.AffiliationRequest;
 import com.beamcard.profile.rest.model.request.LocationRequest;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
+import com.beamcard.profile.rest.model.response.AwardResponse;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import jakarta.validation.Valid;
@@ -35,13 +37,13 @@ public class MeProfileController {
 
     private final ProfileService profileService;
     private final LinkService linkService;
-    private final AvatarStorage avatarStorage;
+    private final AwardService awardService;
+    private final MediaStorage mediaStorage;
 
     @GetMapping
     public ProfileResponse getMyProfile(@AuthenticationPrincipal Jwt jwt) {
         Profile profile = profileService.getOrProvision(userId(jwt), username(jwt));
-        return ProfileResponse.of(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+        return toResponse(profile);
     }
 
     @PutMapping
@@ -56,8 +58,15 @@ public class MeProfileController {
                         request.bio(),
                         location == null ? null : new Location(location.country(), location.city()),
                         toAffiliations(request.affiliations())));
+        return toResponse(profile);
+    }
+
+    private ProfileResponse toResponse(Profile profile) {
         return ProfileResponse.of(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+                profile,
+                linkService.listByProfileId(profile.getId()),
+                AvatarUrlUtil.of(mediaStorage, profile),
+                AwardResponse.listOf(awardService.listForDisplay(profile.getId())));
     }
 
     private static List<Affiliation> toAffiliations(List<AffiliationRequest> requests) {

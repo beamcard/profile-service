@@ -15,10 +15,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
+import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.util.List;
 import java.util.UUID;
@@ -46,7 +47,10 @@ class MeProfileControllerTest {
     LinkService linkService;
 
     @MockBean
-    AvatarStorage avatarStorage;
+    AwardService awardService;
+
+    @MockBean
+    MediaStorage mediaStorage;
 
     @MockBean
     JwtDecoder jwtDecoder;

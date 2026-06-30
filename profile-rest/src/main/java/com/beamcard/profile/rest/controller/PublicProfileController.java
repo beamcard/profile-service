@@ -1,9 +1,11 @@
 package com.beamcard.profile.rest.controller;
 
 import com.beamcard.profile.domain.model.Profile;
+import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
+import com.beamcard.profile.rest.model.response.AwardResponse;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import com.beamcard.profile.rest.utils.VCardUtil;
@@ -25,20 +27,24 @@ public class PublicProfileController {
 
     private final ProfileService profileService;
     private final LinkService linkService;
-    private final AvatarStorage avatarStorage;
+    private final AwardService awardService;
+    private final MediaStorage mediaStorage;
 
     @GetMapping("/@{username}")
     public ProfileResponse getByUsername(@PathVariable String username) {
         Profile profile = profileService.getByUsername(username);
         return ProfileResponse.of(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+                profile,
+                linkService.listByProfileId(profile.getId()),
+                AvatarUrlUtil.of(mediaStorage, profile),
+                AwardResponse.listOf(awardService.listForDisplay(profile.getId())));
     }
 
     @GetMapping(value = "/@{username}/vcard", produces = "text/vcard;charset=utf-8")
     public ResponseEntity<String> getProfileVcard(@PathVariable String username) {
         Profile profile = profileService.getByUsername(username);
         String vcf = VCardUtil.toVCard(
-                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(avatarStorage, profile));
+                profile, linkService.listByProfileId(profile.getId()), AvatarUrlUtil.of(mediaStorage, profile));
         return ResponseEntity.ok()
                 .contentType(VCARD)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + username + ".vcf\"")

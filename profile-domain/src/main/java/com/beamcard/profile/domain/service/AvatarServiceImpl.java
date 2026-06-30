@@ -2,9 +2,9 @@ package com.beamcard.profile.domain.service;
 
 import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.model.Profile;
-import com.beamcard.profile.domain.storage.AvatarStorage;
-import com.beamcard.profile.domain.storage.AvatarStorage.PresignedUpload;
-import com.beamcard.profile.domain.storage.AvatarStorage.StoredObject;
+import com.beamcard.profile.domain.storage.MediaStorage;
+import com.beamcard.profile.domain.storage.MediaStorage.PresignedUpload;
+import com.beamcard.profile.domain.storage.MediaStorage.StoredObject;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AvatarServiceImpl implements AvatarService {
 
     private final ProfileService profileService;
-    private final AvatarStorage avatarStorage;
+    private final MediaStorage avatarStorage;
     private final long maxSizeBytes;
     private final List<String> allowedContentTypes;
 

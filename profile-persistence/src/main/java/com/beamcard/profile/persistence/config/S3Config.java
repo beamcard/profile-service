@@ -1,8 +1,8 @@
 package com.beamcard.profile.persistence.config;
 
-import com.beamcard.profile.domain.storage.AvatarStorage;
+import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.persistence.storage.AvatarBucketInitializer;
-import com.beamcard.profile.persistence.storage.S3AvatarStorage;
+import com.beamcard.profile.persistence.storage.S3MediaStorage;
 import java.net.URI;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -48,8 +48,8 @@ public class S3Config {
     }
 
     @Bean
-    public AvatarStorage avatarStorage(S3Client s3Client, S3Presigner s3Presigner, AvatarProperties properties) {
-        return new S3AvatarStorage(s3Client, s3Presigner, properties);
+    public MediaStorage mediaStorage(S3Client s3Client, S3Presigner s3Presigner, AvatarProperties properties) {
+        return new S3MediaStorage(s3Client, s3Presigner, properties);
     }
 
     @Bean
