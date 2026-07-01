@@ -45,6 +45,9 @@ public class ProfileJpa {
     @Column(name = "avatar_key")
     private String avatarKey;
 
+    @Column(name = "locale", nullable = false)
+    private String locale;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -58,6 +61,9 @@ public class ProfileJpa {
             createdAt = now;
         }
         updatedAt = now;
+        if (locale == null) {
+            locale = "en";
+        }
     }
 
     @PreUpdate

@@ -14,4 +14,9 @@ public final class JwtClaimsUtil {
     public static String username(Jwt jwt) {
         return jwt.getClaimAsString("username");
     }
+
+    public static String locale(Jwt jwt) {
+        String locale = jwt.getClaimAsString("locale");
+        return locale == null ? "en" : locale;
+    }
 }

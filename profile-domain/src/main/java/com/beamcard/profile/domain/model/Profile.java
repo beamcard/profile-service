@@ -19,6 +19,7 @@ public class Profile {
     Location location;
     List<Affiliation> affiliations;
     String avatarKey;
+    String locale;
     Instant createdAt;
     Instant updatedAt;
 }
