@@ -69,7 +69,7 @@ class MeProfileControllerTest {
                 .username("alice")
                 .displayName("Alice")
                 .build();
-        when(profileService.getOrProvision(eq(USER_ID), eq("alice"))).thenReturn(profile);
+        when(profileService.getOrProvision(eq(USER_ID), eq("alice"), eq("en"))).thenReturn(profile);
 
         mockMvc.perform(get("/me/profile").with(aliceToken()))
                 .andExpect(status().isOk())

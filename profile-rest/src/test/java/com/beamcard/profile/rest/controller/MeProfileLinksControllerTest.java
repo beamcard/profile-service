@@ -100,7 +100,7 @@ class MeProfileLinksControllerTest {
                 .userId(USER_ID)
                 .username("alice")
                 .build();
-        when(profileService.getOrProvision(eq(USER_ID), eq("alice"))).thenReturn(profile);
+        when(profileService.getOrProvision(eq(USER_ID), eq("alice"), eq("en"))).thenReturn(profile);
         when(linkService.listByProfileId(eq(profileId))).thenReturn(List.of(sampleLink(UUID.randomUUID())));
 
         mockMvc.perform(get("/me/profile/links").with(aliceToken()))

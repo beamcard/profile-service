@@ -10,6 +10,8 @@ public interface ProfileService {
 
     Profile getOrProvision(UUID userId, String username);
 
+    Profile getOrProvision(UUID userId, String username, String locale);
+
     Profile getByUserId(UUID userId);
 
     Profile getByUsername(String username);

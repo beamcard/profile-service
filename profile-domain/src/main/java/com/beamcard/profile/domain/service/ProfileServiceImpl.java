@@ -17,7 +17,13 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     @Transactional
     public Profile getOrProvision(UUID userId, String username) {
-        return profileRepository.findByUserId(userId).orElseGet(() -> provision(userId, username));
+        return getOrProvision(userId, username, "en");
+    }
+
+    @Override
+    @Transactional
+    public Profile getOrProvision(UUID userId, String username, String locale) {
+        return profileRepository.findByUserId(userId).orElseGet(() -> provision(userId, username, locale));
     }
 
     @Override
@@ -60,9 +66,12 @@ public class ProfileServiceImpl implements ProfileService {
         return profileRepository.save(current.toBuilder().avatarKey(avatarKey).build());
     }
 
-    private Profile provision(UUID userId, String username) {
-        Profile created = profileRepository.save(
-                Profile.builder().userId(userId).username(username).build());
+    private Profile provision(UUID userId, String username, String locale) {
+        Profile created = profileRepository.save(Profile.builder()
+                .userId(userId)
+                .username(username)
+                .locale(locale)
+                .build());
         log.info("Provisioned profile {} for user {} (@{})", created.getId(), userId, username);
         return created;
     }

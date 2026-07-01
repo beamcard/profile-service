@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.controller;
 
+import static com.beamcard.profile.rest.utils.JwtClaimsUtil.locale;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.userId;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
@@ -40,8 +41,9 @@ public class MeAwardsController {
 
     @GetMapping
     public List<AwardResponse> list(@AuthenticationPrincipal Jwt jwt) {
-        UUID profileId =
-                profileService.getOrProvision(userId(jwt), username(jwt)).getId();
+        UUID profileId = profileService
+                .getOrProvision(userId(jwt), username(jwt), locale(jwt))
+                .getId();
         return AwardResponse.listOf(awardService.listForDisplay(profileId));
     }
 

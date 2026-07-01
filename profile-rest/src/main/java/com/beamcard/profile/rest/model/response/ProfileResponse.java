@@ -18,7 +18,8 @@ public record ProfileResponse(
         Instant createdAt,
         Instant updatedAt,
         List<LinkResponse> links,
-        List<AwardResponse> awards) {
+        List<AwardResponse> awards,
+        String locale) {
 
     public static ProfileResponse of(Profile profile, List<Link> links, String avatarUrl, List<AwardResponse> awards) {
         List<Affiliation> affiliations = profile.getAffiliations() == null ? List.of() : profile.getAffiliations();
@@ -33,6 +34,7 @@ public record ProfileResponse(
                 profile.getCreatedAt(),
                 profile.getUpdatedAt(),
                 links.stream().map(LinkResponse::of).toList(),
-                awards);
+                awards,
+                profile.getLocale());
     }
 }

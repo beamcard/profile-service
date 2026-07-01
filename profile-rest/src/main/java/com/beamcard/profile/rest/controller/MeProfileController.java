@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.controller;
 
+import static com.beamcard.profile.rest.utils.JwtClaimsUtil.locale;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.userId;
 import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
@@ -42,7 +43,7 @@ public class MeProfileController {
 
     @GetMapping
     public ProfileResponse getMyProfile(@AuthenticationPrincipal Jwt jwt) {
-        Profile profile = profileService.getOrProvision(userId(jwt), username(jwt));
+        Profile profile = profileService.getOrProvision(userId(jwt), username(jwt), locale(jwt));
         return toResponse(profile);
     }
 
