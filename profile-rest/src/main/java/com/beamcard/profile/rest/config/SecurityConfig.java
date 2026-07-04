@@ -23,7 +23,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                         .permitAll()
-                        .requestMatchers(HttpMethod.GET, "/profiles/@*", "/profiles/@*/vcard")
+                        .requestMatchers(HttpMethod.GET, "/profiles/@*", "/profiles/@*/vcard", "/profiles/@*/showcases")
                         .permitAll()
                         .requestMatchers("/actuator/**")
                         .permitAll()

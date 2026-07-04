@@ -42,6 +42,10 @@ beamcard:
   award:
     max-size-bytes: ${AWARD_MAX_SIZE_BYTES:5242880} # 5 MB
     allowed-content-types: image/png,image/jpeg,image/webp
+  showcase:
+    allowed-content-types: image/png,image/jpeg,image/webp
+    max-size-bytes: ${SHOWCASE_MAX_SIZE_BYTES:5242880} # 5 MB
+    max-steps: ${SHOWCASE_MAX_STEPS:5}
 
 server:
   port: 8090

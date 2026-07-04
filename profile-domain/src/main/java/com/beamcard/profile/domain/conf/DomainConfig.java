@@ -3,6 +3,7 @@ package com.beamcard.profile.domain.conf;
 import com.beamcard.profile.domain.repository.AwardRepository;
 import com.beamcard.profile.domain.repository.LinkRepository;
 import com.beamcard.profile.domain.repository.ProfileRepository;
+import com.beamcard.profile.domain.repository.ShowcaseRepository;
 import com.beamcard.profile.domain.service.AvatarService;
 import com.beamcard.profile.domain.service.AvatarServiceImpl;
 import com.beamcard.profile.domain.service.AwardService;
@@ -11,6 +12,8 @@ import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.LinkServiceImpl;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileServiceImpl;
+import com.beamcard.profile.domain.service.ShowcaseService;
+import com.beamcard.profile.domain.service.ShowcaseServiceImpl;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,5 +52,22 @@ public class DomainConfig {
             @Value("${beamcard.award.max-size-bytes}") long maxSizeBytes,
             @Value("${beamcard.award.allowed-content-types}") List<String> allowedContentTypes) {
         return new AwardServiceImpl(awardRepository, profileService, mediaStorage, maxSizeBytes, allowedContentTypes);
+    }
+
+    @Bean
+    public ShowcaseService showcaseService(
+            ShowcaseRepository showcaseRepository,
+            ProfileService profileService,
+            MediaStorage mediaStorage,
+            @Value("${beamcard.showcase.allowed-content-types}") List<String> allowedContentTypes,
+            @Value("${beamcard.showcase.max-size-bytes}") long maxSizeBytes,
+            @Value("${beamcard.showcase.max-steps}") int maxStepsPerShowcase) {
+        return new ShowcaseServiceImpl(
+                showcaseRepository,
+                profileService,
+                mediaStorage,
+                allowedContentTypes,
+                maxSizeBytes,
+                maxStepsPerShowcase);
     }
 }

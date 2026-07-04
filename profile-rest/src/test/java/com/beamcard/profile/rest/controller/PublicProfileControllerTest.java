@@ -12,6 +12,7 @@ import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
+import com.beamcard.profile.domain.service.ShowcaseService;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
 import java.util.UUID;
@@ -39,6 +40,9 @@ class PublicProfileControllerTest {
 
     @MockBean
     AwardService awardService;
+
+    @MockBean
+    ShowcaseService showcaseService;
 
     @MockBean
     MediaStorage mediaStorage;

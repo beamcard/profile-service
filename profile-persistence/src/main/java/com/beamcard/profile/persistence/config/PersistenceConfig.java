@@ -3,18 +3,22 @@ package com.beamcard.profile.persistence.config;
 import com.beamcard.profile.domain.repository.AwardRepository;
 import com.beamcard.profile.domain.repository.LinkRepository;
 import com.beamcard.profile.domain.repository.ProfileRepository;
+import com.beamcard.profile.domain.repository.ShowcaseRepository;
 import com.beamcard.profile.persistence.mapper.AwardPersistenceMapper;
 import com.beamcard.profile.persistence.mapper.LinkPersistenceMapper;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
 import com.beamcard.profile.persistence.repository.AwardRepositoryImpl;
 import com.beamcard.profile.persistence.repository.LinkRepositoryImpl;
 import com.beamcard.profile.persistence.repository.ProfileRepositoryImpl;
+import com.beamcard.profile.persistence.repository.ShowcaseRepositoryImpl;
 import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AwardJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.LinkJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.ShowcaseJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.ShowcaseStepJpaRepository;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,5 +68,11 @@ public class PersistenceConfig {
     public AwardRepository awardRepository(
             AwardJpaRepository awardJpaRepository, AwardPersistenceMapper awardPersistenceMapper) {
         return new AwardRepositoryImpl(awardJpaRepository, awardPersistenceMapper);
+    }
+
+    @Bean
+    public ShowcaseRepository showcaseRepository(
+            ShowcaseJpaRepository showcaseJpaRepository, ShowcaseStepJpaRepository showcaseStepJpaRepository) {
+        return new ShowcaseRepositoryImpl(showcaseJpaRepository, showcaseStepJpaRepository);
     }
 }
