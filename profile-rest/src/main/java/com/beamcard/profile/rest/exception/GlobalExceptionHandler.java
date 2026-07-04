@@ -3,6 +3,7 @@ package com.beamcard.profile.rest.exception;
 import com.beamcard.profile.domain.exception.AwardNotFoundException;
 import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.exception.InvalidAwardException;
+import com.beamcard.profile.domain.exception.InvalidShowcaseException;
 import com.beamcard.profile.domain.exception.LinkNotFoundException;
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import jakarta.validation.ConstraintViolation;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail handleInvalidAward(InvalidAwardException ex) {
         log.debug("Invalid award: {}", ex.getMessage());
         return problem(HttpStatus.BAD_REQUEST, "invalid_award", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidShowcaseException.class)
+    ProblemDetail handleInvalidShowcase(InvalidShowcaseException ex) {
+        log.debug("Invalid showcase: {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "invalid_showcase", ex.getMessage());
     }
 
     @Override

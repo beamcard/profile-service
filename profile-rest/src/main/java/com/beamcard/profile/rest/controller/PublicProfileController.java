@@ -4,11 +4,14 @@ import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.ProfileService;
+import com.beamcard.profile.domain.service.ShowcaseService;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.model.response.AwardResponse;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
+import com.beamcard.profile.rest.model.response.ShowcaseResponse;
 import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import com.beamcard.profile.rest.utils.VCardUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,6 +31,7 @@ public class PublicProfileController {
     private final ProfileService profileService;
     private final LinkService linkService;
     private final AwardService awardService;
+    private final ShowcaseService showcaseService;
     private final MediaStorage mediaStorage;
 
     @GetMapping("/@{username}")
@@ -38,6 +42,12 @@ public class PublicProfileController {
                 linkService.listByProfileId(profile.getId()),
                 AvatarUrlUtil.of(mediaStorage, profile),
                 AwardResponse.listOf(awardService.listForDisplay(profile.getId())));
+    }
+
+    @GetMapping("/@{username}/showcases")
+    public List<ShowcaseResponse> getShowcases(@PathVariable String username) {
+        Profile profile = profileService.getByUsername(username);
+        return ShowcaseResponse.listOf(showcaseService.listForDisplay(profile.getId()));
     }
 
     @GetMapping(value = "/@{username}/vcard", produces = "text/vcard;charset=utf-8")
