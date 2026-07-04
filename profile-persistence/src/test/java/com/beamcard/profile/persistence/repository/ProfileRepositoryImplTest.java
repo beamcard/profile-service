@@ -12,6 +12,7 @@ import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
 import com.beamcard.profile.persistence.model.AffiliationJpa;
 import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
+import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -38,6 +39,9 @@ class ProfileRepositoryImplTest {
     @Mock
     AffiliationJpaRepository affiliationRepository;
 
+    @Mock
+    ActivityJpaRepository activityRepository;
+
     final ProfilePersistenceMapper mapper = Mappers.getMapper(ProfilePersistenceMapper.class);
 
     ProfileRepositoryImpl repository;
@@ -47,7 +51,8 @@ class ProfileRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        repository = new ProfileRepositoryImpl(jpaRepository, locationRepository, affiliationRepository, mapper);
+        repository = new ProfileRepositoryImpl(
+                jpaRepository, locationRepository, affiliationRepository, activityRepository, mapper);
         profileId = UUID.randomUUID();
         userId = UUID.randomUUID();
     }

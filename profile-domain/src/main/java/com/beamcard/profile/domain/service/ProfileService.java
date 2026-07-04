@@ -20,5 +20,10 @@ public interface ProfileService {
 
     Profile setAvatar(UUID userId, String avatarKey);
 
-    record UpdateProfileCommand(String displayName, String bio, Location location, List<Affiliation> affiliations) {}
+    record UpdateProfileCommand(
+            String displayName,
+            String bio,
+            Location location,
+            List<Affiliation> affiliations,
+            List<String> activities) {}
 }

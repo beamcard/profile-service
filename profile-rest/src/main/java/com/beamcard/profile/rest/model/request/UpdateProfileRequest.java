@@ -8,4 +8,5 @@ public record UpdateProfileRequest(
         @Size(max = 80) String displayName,
         @Size(max = 500) String bio,
         @Valid LocationRequest location,
-        @Valid List<AffiliationRequest> affiliations) {}
+        @Valid List<AffiliationRequest> affiliations,
+        List<@Size(max = 25) String> activities) {}

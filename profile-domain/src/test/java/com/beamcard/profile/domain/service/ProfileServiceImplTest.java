@@ -103,7 +103,8 @@ class ProfileServiceImplTest {
         Profile result = service.update(
                 userId,
                 "alice",
-                new UpdateProfileCommand("New name", null, new Location("Austria", "Vienna"), List.of(affiliation)));
+                new UpdateProfileCommand(
+                        "New name", null, new Location("Austria", "Vienna"), List.of(affiliation), null));
 
         assertThat(result.getDisplayName()).isEqualTo("New name");
         assertThat(result.getBio()).isEqualTo("keep me");
