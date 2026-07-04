@@ -5,9 +5,11 @@ import com.beamcard.profile.domain.model.Location;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
+import com.beamcard.profile.persistence.model.ActivityJpa;
 import com.beamcard.profile.persistence.model.AffiliationJpa;
 import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
+import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -23,6 +25,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     private final ProfileJpaRepository jpaRepository;
     private final ProfileLocationJpaRepository locationRepository;
     private final AffiliationJpaRepository affiliationRepository;
+    private final ActivityJpaRepository activityRepository;
     private final ProfilePersistenceMapper mapper;
 
     @Override
@@ -42,6 +45,9 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         if (profile.getAffiliations() != null) {
             replaceAffiliations(saved.getId(), profile.getAffiliations());
         }
+        if (profile.getActivities() != null) {
+            replaceActivities(saved.getId(), profile.getActivities());
+        }
         return composeProfile(saved);
     }
 
@@ -51,12 +57,20 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .findById(base.getId())
                 .map(ProfileRepositoryImpl::toLocation)
                 .ifPresent(profile::location);
-        return profile.affiliations(loadAffiliations(base.getId())).build();
+        return profile.affiliations(loadAffiliations(base.getId()))
+                .activities(loadActivities(base.getId()))
+                .build();
     }
 
     private List<Affiliation> loadAffiliations(UUID profileId) {
         return affiliationRepository.findByProfileIdOrderByPositionAsc(profileId).stream()
                 .map(ProfileRepositoryImpl::toAffiliation)
+                .toList();
+    }
+
+    private List<String> loadActivities(UUID profileId) {
+        return activityRepository.findByProfileIdOrderByPositionAsc(profileId).stream()
+                .map(ActivityJpa::getName)
                 .toList();
     }
 
@@ -102,6 +116,21 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                     .organization(blankToNull(affiliation.organization()))
                     .address(blankToNull(affiliation.address()))
                     .description(blankToNull(affiliation.description()))
+                    .position(position++)
+                    .build());
+        }
+    }
+
+    private void replaceActivities(UUID profileId, List<String> activities) {
+        activityRepository.deleteByProfileId(profileId);
+        int position = 0;
+        for (String activity : activities) {
+            if (!StringUtils.hasText(activity)) {
+                continue;
+            }
+            activityRepository.save(ActivityJpa.builder()
+                    .profileId(profileId)
+                    .name(activity.trim())
                     .position(position++)
                     .build());
         }

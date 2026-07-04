@@ -58,7 +58,8 @@ public class MeProfileController {
                         request.displayName(),
                         request.bio(),
                         location == null ? null : new Location(location.country(), location.city()),
-                        toAffiliations(request.affiliations())));
+                        toAffiliations(request.affiliations()),
+                        request.activities()));
         return toResponse(profile);
     }
 

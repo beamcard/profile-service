@@ -18,6 +18,7 @@ public class Profile {
     String bio;
     Location location;
     List<Affiliation> affiliations;
+    List<String> activities;
     String avatarKey;
     String locale;
     Instant createdAt;

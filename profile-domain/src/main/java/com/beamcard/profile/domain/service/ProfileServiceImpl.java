@@ -56,6 +56,9 @@ public class ProfileServiceImpl implements ProfileService {
         if (command.affiliations() != null) {
             builder.affiliations(command.affiliations());
         }
+        if (command.activities() != null) {
+            builder.activities(command.activities());
+        }
         return profileRepository.save(builder.build());
     }
 
