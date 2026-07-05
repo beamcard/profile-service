@@ -68,6 +68,40 @@ class ProfileServiceImplTest {
     }
 
     @Test
+    void getOrProvision_reconcilesHandleAndLocale_whenTokenDiffers() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("old_handle")
+                .locale("en")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Profile result = service.getOrProvision(userId, "new_handle", "de");
+
+        assertThat(result.getUsername()).isEqualTo("new_handle");
+        assertThat(result.getLocale()).isEqualTo("de");
+    }
+
+    @Test
+    void getOrProvision_twoArg_reconcilesHandleButLeavesLocaleUntouched() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("old_handle")
+                .locale("de")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Profile result = service.getOrProvision(userId, "new_handle");
+
+        assertThat(result.getUsername()).isEqualTo("new_handle");
+        assertThat(result.getLocale()).isEqualTo("de");
+    }
+
+    @Test
     void getByUsername_returnsProfile_whenFound() {
         Profile existing = Profile.builder()
                 .id(UUID.randomUUID())
