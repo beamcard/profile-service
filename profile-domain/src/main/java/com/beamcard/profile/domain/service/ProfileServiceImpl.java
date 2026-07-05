@@ -17,13 +17,34 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     @Transactional
     public Profile getOrProvision(UUID userId, String username) {
-        return getOrProvision(userId, username, "en");
+        return getOrProvision(userId, username, null);
     }
 
     @Override
     @Transactional
     public Profile getOrProvision(UUID userId, String username, String locale) {
-        return profileRepository.findByUserId(userId).orElseGet(() -> provision(userId, username, locale));
+        return profileRepository
+                .findByUserId(userId)
+                .map(existing -> syncHandleAndLocale(existing, username, locale))
+                .orElseGet(() -> provision(userId, username, locale));
+    }
+
+    private Profile syncHandleAndLocale(Profile existing, String username, String locale) {
+        boolean usernameChanged = username != null && !username.equals(existing.getUsername());
+        boolean localeChanged = locale != null && !locale.equals(existing.getLocale());
+        if (!usernameChanged && !localeChanged) {
+            return existing;
+        }
+        Profile.ProfileBuilder builder = existing.toBuilder();
+        if (usernameChanged) {
+            builder.username(username);
+        }
+        if (localeChanged) {
+            builder.locale(locale);
+        }
+        Profile updated = profileRepository.save(builder.build());
+        log.debug("Reconciled profile {} handle/locale from token for user {}", updated.getId(), existing.getUserId());
+        return updated;
     }
 
     @Override
@@ -73,7 +94,7 @@ public class ProfileServiceImpl implements ProfileService {
         Profile created = profileRepository.save(Profile.builder()
                 .userId(userId)
                 .username(username)
-                .locale(locale)
+                .locale(locale != null ? locale : "en")
                 .build());
         log.info("Provisioned profile {} for user {} (@{})", created.getId(), userId, username);
         return created;
