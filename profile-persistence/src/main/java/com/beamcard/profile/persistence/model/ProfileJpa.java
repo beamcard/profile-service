@@ -42,6 +42,9 @@ public class ProfileJpa {
     @Column(name = "bio")
     private String bio;
 
+    @Column(name = "phone")
+    private String phone;
+
     @Column(name = "avatar_key")
     private String avatarKey;
 

@@ -71,6 +71,22 @@ class VCardUtilTest {
         assertThat(vcf).contains("N:;alice;;;\r\n");
         assertThat(vcf).doesNotContain("NOTE:");
         assertThat(vcf).doesNotContain("PHOTO");
+        assertThat(vcf).doesNotContain("TEL");
+    }
+
+    @Test
+    void emitsTel_whenPhonePresent() {
+        Profile profile = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(UUID.randomUUID())
+                .username("alice")
+                .displayName("Alice")
+                .phone("+380671234567")
+                .build();
+
+        String vcf = VCardUtil.toVCard(profile, List.of(), null);
+
+        assertThat(vcf).contains("TEL;TYPE=CELL:+380671234567\r\n");
     }
 
     @Test

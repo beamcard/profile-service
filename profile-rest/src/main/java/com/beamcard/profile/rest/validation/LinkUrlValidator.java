@@ -28,7 +28,6 @@ public class LinkUrlValidator implements ConstraintValidator<ValidLink, LinkUrlF
                     case EMAIL -> EMAIL.matcher(url).matches();
                     case WHATSAPP -> PHONE.matcher(url).matches() || hostEndsWith(url, "wa.me", "whatsapp.com");
                     case INSTAGRAM -> hostEndsWith(url, "instagram.com");
-                    case VIBER -> hostEndsWith(url, "viber.com");
                     case TELEGRAM -> hostEndsWith(url, "t.me", "telegram.me", "telegram.org");
                     case TWITTER -> hostEndsWith(url, "twitter.com", "x.com");
                     case LINKEDIN -> hostEndsWith(url, "linkedin.com");
