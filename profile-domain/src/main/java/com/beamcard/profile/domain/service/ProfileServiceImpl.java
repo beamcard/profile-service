@@ -71,6 +71,10 @@ public class ProfileServiceImpl implements ProfileService {
         if (command.bio() != null) {
             builder.bio(command.bio());
         }
+        if (command.phone() != null) {
+            String phone = command.phone().trim();
+            builder.phone(phone.isEmpty() ? null : phone);
+        }
         if (command.location() != null) {
             builder.location(command.location());
         }

@@ -35,6 +35,10 @@ public final class VCardUtil {
                 .append(escape(a.role()))
                 .append(CRLF));
 
+        if (hasText(profile.getPhone())) {
+            sb.append("TEL;TYPE=CELL:").append(escape(profile.getPhone())).append(CRLF);
+        }
+
         if (hasText(profile.getBio())) {
             sb.append("NOTE:").append(escape(profile.getBio())).append(CRLF);
         }

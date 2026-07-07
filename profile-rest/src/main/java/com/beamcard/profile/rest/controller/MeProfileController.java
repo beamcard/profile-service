@@ -57,6 +57,7 @@ public class MeProfileController {
                 new UpdateProfileCommand(
                         request.displayName(),
                         request.bio(),
+                        request.phone(),
                         location == null ? null : new Location(location.country(), location.city()),
                         toAffiliations(request.affiliations()),
                         request.activities()));

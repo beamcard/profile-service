@@ -138,10 +138,16 @@ class ProfileServiceImplTest {
                 userId,
                 "alice",
                 new UpdateProfileCommand(
-                        "New name", null, new Location("Austria", "Vienna"), List.of(affiliation), null));
+                        "New name",
+                        null,
+                        "+380671211111",
+                        new Location("Austria", "Vienna"),
+                        List.of(affiliation),
+                        null));
 
         assertThat(result.getDisplayName()).isEqualTo("New name");
         assertThat(result.getBio()).isEqualTo("keep me");
+        assertThat(result.getPhone()).isEqualTo("+380671211111");
         assertThat(result.getLocation().city()).isEqualTo("Vienna");
         assertThat(result.getLocation().country()).isEqualTo("Austria");
         assertThat(result.getAffiliations()).hasSize(1);

@@ -16,6 +16,7 @@ public class Profile {
     String username;
     String displayName;
     String bio;
+    String phone;
     Location location;
     List<Affiliation> affiliations;
     List<String> activities;
