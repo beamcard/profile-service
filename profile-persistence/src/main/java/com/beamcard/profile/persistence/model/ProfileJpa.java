@@ -1,7 +1,10 @@
 package com.beamcard.profile.persistence.model;
 
+import com.beamcard.profile.domain.model.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,6 +54,10 @@ public class ProfileJpa {
     @Column(name = "locale", nullable = false)
     private String locale;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false)
+    private Currency currency;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -66,6 +73,9 @@ public class ProfileJpa {
         updatedAt = now;
         if (locale == null) {
             locale = "en";
+        }
+        if (currency == null) {
+            currency = Currency.USD;
         }
     }
 

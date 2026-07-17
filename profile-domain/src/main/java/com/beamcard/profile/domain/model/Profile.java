@@ -20,6 +20,8 @@ public class Profile {
     Location location;
     List<Affiliation> affiliations;
     List<String> activities;
+    Currency currency;
+    List<PriceItem> priceItems;
     String avatarKey;
     String locale;
     Instant createdAt;

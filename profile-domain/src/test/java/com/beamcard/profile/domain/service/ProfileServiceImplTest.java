@@ -9,10 +9,14 @@ import static org.mockito.Mockito.when;
 
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import com.beamcard.profile.domain.model.Affiliation;
+import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.PriceItem;
+import com.beamcard.profile.domain.model.PriceType;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -143,6 +147,8 @@ class ProfileServiceImplTest {
                         "+380671211111",
                         new Location("Austria", "Vienna"),
                         List.of(affiliation),
+                        null,
+                        null,
                         null));
 
         assertThat(result.getDisplayName()).isEqualTo("New name");
@@ -156,5 +162,46 @@ class ProfileServiceImplTest {
         assertThat(result.getAffiliations().getFirst().address()).isEqualTo("Stephansplatz 1");
         assertThat(result.getAffiliations().getFirst().description()).isEqualTo("Entrance B");
         assertThat(result.getUsername()).isEqualTo("alice");
+    }
+
+    @Test
+    void update_appliesCurrencyAndPriceItems() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .currency(Currency.USD)
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        List<PriceItem> items = List.of(
+                new PriceItem("Consultation", PriceType.EXACT, new BigDecimal("50.00"), null),
+                new PriceItem("Full project", PriceType.RANGE, new BigDecimal("500"), new BigDecimal("1200")));
+        Profile result = service.update(
+                userId, "alice", new UpdateProfileCommand(null, null, null, null, null, null, Currency.EUR, items));
+
+        assertThat(result.getCurrency()).isEqualTo(Currency.EUR);
+        assertThat(result.getPriceItems()).hasSize(2);
+        assertThat(result.getPriceItems().getFirst().name()).isEqualTo("Consultation");
+        assertThat(result.getPriceItems().getFirst().priceType()).isEqualTo(PriceType.EXACT);
+        assertThat(result.getPriceItems().getLast().amountMax()).isEqualByComparingTo("1200");
+    }
+
+    @Test
+    void update_leavesCurrencyUnchanged_whenNull() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .currency(Currency.UAH)
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Profile result = service.update(
+                userId, "alice", new UpdateProfileCommand("New name", null, null, null, null, null, null, null));
+
+        assertThat(result.getCurrency()).isEqualTo(Currency.UAH);
     }
 }

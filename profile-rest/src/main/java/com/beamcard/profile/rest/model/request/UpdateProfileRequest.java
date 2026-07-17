@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.model.request;
 
+import com.beamcard.profile.domain.model.Currency;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -11,4 +12,6 @@ public record UpdateProfileRequest(
         @Pattern(regexp = "^(\\+[1-9]\\d{7,14})?$", message = "invalid_phone") String phone,
         @Valid LocationRequest location,
         @Valid List<AffiliationRequest> affiliations,
-        List<@Size(max = 60) String> activities) {}
+        List<@Size(max = 60) String> activities,
+        Currency currency,
+        @Valid List<PriceItemRequest> priceItems) {}

@@ -13,7 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.beamcard.profile.domain.model.Affiliation;
+import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.PriceItem;
+import com.beamcard.profile.domain.model.PriceType;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
@@ -21,6 +24,7 @@ import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.config.SecurityConfig;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -130,6 +134,54 @@ class MeProfileControllerTest {
         assertThat(cmd.getValue().location().city()).isEqualTo("Vienna");
         assertThat(cmd.getValue().affiliations()).hasSize(1);
         assertThat(cmd.getValue().affiliations().getFirst().address()).isEqualTo("Stephansplatz 1");
+    }
+
+    @Test
+    void putMe_acceptsCurrencyAndPriceItems_andReturnsThem() throws Exception {
+        Profile updated = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(USER_ID)
+                .username("alice")
+                .currency(Currency.EUR)
+                .priceItems(List.of(
+                        new PriceItem("Consultation", PriceType.EXACT, new BigDecimal("50.00"), null),
+                        new PriceItem("Full project", PriceType.RANGE, new BigDecimal("500"), new BigDecimal("1200"))))
+                .build();
+        when(profileService.update(eq(USER_ID), eq("alice"), any())).thenReturn(updated);
+
+        mockMvc.perform(
+                        put("/me/profile")
+                                .with(aliceToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"currency\":\"EUR\",\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50.00},{\"name\":\"Full project\",\"price_type\":\"RANGE\",\"amount_min\":500,\"amount_max\":1200}]}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.currency").value("EUR"))
+                .andExpect(jsonPath("$.price_items[0].name").value("Consultation"))
+                .andExpect(jsonPath("$.price_items[0].price_type").value("EXACT"))
+                .andExpect(jsonPath("$.price_items[0].amount_min").value(50.00))
+                .andExpect(jsonPath("$.price_items[1].price_type").value("RANGE"))
+                .andExpect(jsonPath("$.price_items[1].amount_max").value(1200));
+
+        ArgumentCaptor<UpdateProfileCommand> cmd = ArgumentCaptor.forClass(UpdateProfileCommand.class);
+        verify(profileService).update(eq(USER_ID), eq("alice"), cmd.capture());
+        assertThat(cmd.getValue().currency()).isEqualTo(Currency.EUR);
+        assertThat(cmd.getValue().priceItems()).hasSize(2);
+        assertThat(cmd.getValue().priceItems().getFirst().name()).isEqualTo("Consultation");
+    }
+
+    @Test
+    void putMe_returns400_whenPriceAmountsInconsistent() throws Exception {
+        // EXACT must carry amount_min only; supplying amount_max as well is invalid.
+        mockMvc.perform(
+                        put("/me/profile")
+                                .with(aliceToken())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50,\"amount_max\":90}]}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.code").value("validation_failed"));
     }
 
     @Test
