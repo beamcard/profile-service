@@ -1,7 +1,9 @@
 package com.beamcard.profile.domain.service;
 
 import com.beamcard.profile.domain.model.Affiliation;
+import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import java.util.List;
 import java.util.UUID;
@@ -26,5 +28,7 @@ public interface ProfileService {
             String phone,
             Location location,
             List<Affiliation> affiliations,
-            List<String> activities) {}
+            List<String> activities,
+            Currency currency,
+            List<PriceItem> priceItems) {}
 }

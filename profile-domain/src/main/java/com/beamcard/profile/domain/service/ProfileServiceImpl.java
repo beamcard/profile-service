@@ -84,6 +84,12 @@ public class ProfileServiceImpl implements ProfileService {
         if (command.activities() != null) {
             builder.activities(command.activities());
         }
+        if (command.currency() != null) {
+            builder.currency(command.currency());
+        }
+        if (command.priceItems() != null) {
+            builder.priceItems(command.priceItems());
+        }
         return profileRepository.save(builder.build());
     }
 

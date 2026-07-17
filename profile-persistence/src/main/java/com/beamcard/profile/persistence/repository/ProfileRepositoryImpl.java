@@ -2,15 +2,18 @@ package com.beamcard.profile.persistence.repository;
 
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
 import com.beamcard.profile.persistence.model.ActivityJpa;
 import com.beamcard.profile.persistence.model.AffiliationJpa;
+import com.beamcard.profile.persistence.model.PriceItemJpa;
 import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
 import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.PriceItemJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
 import java.util.List;
@@ -26,6 +29,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     private final ProfileLocationJpaRepository locationRepository;
     private final AffiliationJpaRepository affiliationRepository;
     private final ActivityJpaRepository activityRepository;
+    private final PriceItemJpaRepository priceItemRepository;
     private final ProfilePersistenceMapper mapper;
 
     @Override
@@ -48,6 +52,9 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         if (profile.getActivities() != null) {
             replaceActivities(saved.getId(), profile.getActivities());
         }
+        if (profile.getPriceItems() != null) {
+            replacePriceItems(saved.getId(), profile.getPriceItems());
+        }
         return composeProfile(saved);
     }
 
@@ -59,6 +66,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .ifPresent(profile::location);
         return profile.affiliations(loadAffiliations(base.getId()))
                 .activities(loadActivities(base.getId()))
+                .priceItems(loadPriceItems(base.getId()))
                 .build();
     }
 
@@ -74,6 +82,12 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .toList();
     }
 
+    private List<PriceItem> loadPriceItems(UUID profileId) {
+        return priceItemRepository.findByProfileIdOrderByPositionAsc(profileId).stream()
+                .map(ProfileRepositoryImpl::toPriceItem)
+                .toList();
+    }
+
     private static Location toLocation(ProfileLocationJpa locationJpa) {
         return new Location(locationJpa.getCountry(), locationJpa.getCity());
     }
@@ -84,6 +98,14 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 affiliationJpa.getOrganization(),
                 affiliationJpa.getAddress(),
                 affiliationJpa.getDescription());
+    }
+
+    private static PriceItem toPriceItem(PriceItemJpa priceItemJpa) {
+        return new PriceItem(
+                priceItemJpa.getName(),
+                priceItemJpa.getPriceType(),
+                priceItemJpa.getAmountMin(),
+                priceItemJpa.getAmountMax());
     }
 
     private void saveLocation(UUID profileId, Location location) {
@@ -131,6 +153,24 @@ public class ProfileRepositoryImpl implements ProfileRepository {
             activityRepository.save(ActivityJpa.builder()
                     .profileId(profileId)
                     .name(activity.trim())
+                    .position(position++)
+                    .build());
+        }
+    }
+
+    private void replacePriceItems(UUID profileId, List<PriceItem> priceItems) {
+        priceItemRepository.deleteByProfileId(profileId);
+        int position = 0;
+        for (PriceItem item : priceItems) {
+            if (item == null || item.isEmpty()) {
+                continue;
+            }
+            priceItemRepository.save(PriceItemJpa.builder()
+                    .profileId(profileId)
+                    .name(item.name().trim())
+                    .priceType(item.priceType())
+                    .amountMin(item.amountMin())
+                    .amountMax(item.amountMax())
                     .position(position++)
                     .build());
         }

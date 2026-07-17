@@ -6,6 +6,7 @@ import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
@@ -14,6 +15,7 @@ import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.model.request.AffiliationRequest;
 import com.beamcard.profile.rest.model.request.LocationRequest;
+import com.beamcard.profile.rest.model.request.PriceItemRequest;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
 import com.beamcard.profile.rest.model.response.AwardResponse;
 import com.beamcard.profile.rest.model.response.ProfileResponse;
@@ -60,7 +62,9 @@ public class MeProfileController {
                         request.phone(),
                         location == null ? null : new Location(location.country(), location.city()),
                         toAffiliations(request.affiliations()),
-                        request.activities()));
+                        request.activities(),
+                        request.currency(),
+                        toPriceItems(request.priceItems())));
         return toResponse(profile);
     }
 
@@ -78,6 +82,15 @@ public class MeProfileController {
         }
         return requests.stream()
                 .map(r -> new Affiliation(r.role(), r.organization(), r.address(), r.description()))
+                .toList();
+    }
+
+    private static List<PriceItem> toPriceItems(List<PriceItemRequest> requests) {
+        if (requests == null) {
+            return null;
+        }
+        return requests.stream()
+                .map(r -> new PriceItem(r.name(), r.priceType(), r.amountMin(), r.amountMax()))
                 .toList();
     }
 }
