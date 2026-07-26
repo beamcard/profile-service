@@ -10,4 +10,6 @@ public interface ProfileJpaRepository extends JpaRepository<ProfileJpa, UUID> {
     Optional<ProfileJpa> findByUserId(UUID userId);
 
     Optional<ProfileJpa> findByUsername(String username);
+
+    void deleteByUserId(UUID userId);
 }

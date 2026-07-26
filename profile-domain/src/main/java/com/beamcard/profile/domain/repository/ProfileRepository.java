@@ -11,4 +11,6 @@ public interface ProfileRepository {
     Optional<Profile> findByUsername(String username);
 
     Profile save(Profile profile);
+
+    void deleteByUserId(UUID userId);
 }

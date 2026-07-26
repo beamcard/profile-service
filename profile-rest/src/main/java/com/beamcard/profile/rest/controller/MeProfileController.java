@@ -10,6 +10,7 @@ import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
+import com.beamcard.profile.domain.service.ProfileDeletionService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.MediaStorage;
@@ -23,13 +24,16 @@ import com.beamcard.profile.rest.utils.AvatarUrlUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeProfileController {
 
     private final ProfileService profileService;
+    private final ProfileDeletionService profileDeletionService;
     private final LinkService linkService;
     private final AwardService awardService;
     private final MediaStorage mediaStorage;
@@ -66,6 +71,12 @@ public class MeProfileController {
                         request.currency(),
                         toPriceItems(request.priceItems())));
         return toResponse(profile);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteMyProfile(@AuthenticationPrincipal Jwt jwt) {
+        profileDeletionService.deleteByUserId(userId(jwt));
     }
 
     private ProfileResponse toResponse(Profile profile) {

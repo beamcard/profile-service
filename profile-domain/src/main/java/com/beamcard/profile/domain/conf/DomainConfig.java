@@ -10,6 +10,8 @@ import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.AwardServiceImpl;
 import com.beamcard.profile.domain.service.LinkService;
 import com.beamcard.profile.domain.service.LinkServiceImpl;
+import com.beamcard.profile.domain.service.ProfileDeletionService;
+import com.beamcard.profile.domain.service.ProfileDeletionServiceImpl;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileServiceImpl;
 import com.beamcard.profile.domain.service.ShowcaseService;
@@ -28,6 +30,15 @@ public class DomainConfig {
     @Bean
     public ProfileService profileService(ProfileRepository profileRepository) {
         return new ProfileServiceImpl(profileRepository);
+    }
+
+    @Bean
+    public ProfileDeletionService profileDeletionService(
+            ProfileRepository profileRepository,
+            AwardRepository awardRepository,
+            ShowcaseRepository showcaseRepository,
+            MediaStorage mediaStorage) {
+        return new ProfileDeletionServiceImpl(profileRepository, awardRepository, showcaseRepository, mediaStorage);
     }
 
     @Bean
