@@ -43,6 +43,11 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
+    public void deleteByUserId(UUID userId) {
+        jpaRepository.deleteByUserId(userId);
+    }
+
+    @Override
     public Profile save(Profile profile) {
         ProfileJpa saved = jpaRepository.save(mapper.toJpa(profile));
         saveLocation(saved.getId(), profile.getLocation());

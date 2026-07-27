@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -20,6 +21,7 @@ import com.beamcard.profile.domain.model.PriceType;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
 import com.beamcard.profile.domain.service.LinkService;
+import com.beamcard.profile.domain.service.ProfileDeletionService;
 import com.beamcard.profile.domain.service.ProfileService;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.MediaStorage;
@@ -46,6 +48,9 @@ class MeProfileControllerTest {
 
     @MockBean
     ProfileService profileService;
+
+    @MockBean
+    ProfileDeletionService profileDeletionService;
 
     @MockBean
     LinkService linkService;
@@ -182,6 +187,17 @@ class MeProfileControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.code").value("validation_failed"));
+    }
+
+    @Test
+    void deleteMe_returns204_andDeletesCallersProfile() throws Exception {
+        mockMvc.perform(delete("/me/profile").with(aliceToken())).andExpect(status().isNoContent());
+        verify(profileDeletionService).deleteByUserId(USER_ID);
+    }
+
+    @Test
+    void deleteMe_returns401_withoutToken() throws Exception {
+        mockMvc.perform(delete("/me/profile")).andExpect(status().isUnauthorized());
     }
 
     @Test
