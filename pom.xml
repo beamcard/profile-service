@@ -38,7 +38,7 @@
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <awssdk.version>2.29.20</awssdk.version>
         <qrcodegen.version>1.8.0</qrcodegen.version>
-
+        <loki.logback.version>1.5.2</loki.logback.version>
         <mockito.version>5.15.2</mockito.version>
     </properties>
 
@@ -82,6 +82,11 @@
                 <groupId>io.nayuki</groupId>
                 <artifactId>qrcodegen</artifactId>
                 <version>${qrcodegen.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.loki4j</groupId>
+                <artifactId>loki-logback-appender</artifactId>
+                <version>${loki.logback.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
