@@ -69,7 +69,8 @@ public class MeProfileController {
                         toAffiliations(request.affiliations()),
                         request.activities(),
                         request.currency(),
-                        toPriceItems(request.priceItems())));
+                        toPriceItems(request.priceItems()),
+                        request.accentColor()));
         return toResponse(profile);
     }
 

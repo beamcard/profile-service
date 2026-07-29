@@ -22,6 +22,7 @@ public class Profile {
     List<String> activities;
     Currency currency;
     List<PriceItem> priceItems;
+    AccentColor accentColor;
     String avatarKey;
     String locale;
     Instant createdAt;

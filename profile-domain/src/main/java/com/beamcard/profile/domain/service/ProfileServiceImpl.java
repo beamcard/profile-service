@@ -90,6 +90,9 @@ public class ProfileServiceImpl implements ProfileService {
         if (command.priceItems() != null) {
             builder.priceItems(command.priceItems());
         }
+        if (command.accentColor() != null) {
+            builder.accentColor(command.accentColor());
+        }
         return profileRepository.save(builder.build());
     }
 
