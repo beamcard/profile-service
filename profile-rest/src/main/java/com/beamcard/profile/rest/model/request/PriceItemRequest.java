@@ -4,6 +4,8 @@ import com.beamcard.profile.domain.model.PriceType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,7 +15,8 @@ public record PriceItemRequest(
         @NotBlank @Size(max = 500) String name,
         @NotNull PriceType priceType,
         @DecimalMin(value = "0", inclusive = false) @Digits(integer = 10, fraction = 2) BigDecimal amountMin,
-        @DecimalMin(value = "0", inclusive = false) @Digits(integer = 10, fraction = 2) BigDecimal amountMax) {
+        @DecimalMin(value = "0", inclusive = false) @Digits(integer = 10, fraction = 2) BigDecimal amountMax,
+        @NotNull @Min(5) @Max(1440) Integer durationMinutes) {
 
     @AssertTrue(message = "invalid_price_amounts") public boolean isAmountsConsistent() {
         if (priceType == null) {

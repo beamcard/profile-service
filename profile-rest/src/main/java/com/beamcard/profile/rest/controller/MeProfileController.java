@@ -105,7 +105,7 @@ public class MeProfileController {
             return null;
         }
         return requests.stream()
-                .map(r -> new PriceItem(r.name(), r.priceType(), r.amountMin(), r.amountMax()))
+                .map(r -> new PriceItem(r.name(), r.priceType(), r.amountMin(), r.amountMax(), r.durationMinutes()))
                 .toList();
     }
 

@@ -121,7 +121,8 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 priceItemJpa.getName(),
                 priceItemJpa.getPriceType(),
                 priceItemJpa.getAmountMin(),
-                priceItemJpa.getAmountMax());
+                priceItemJpa.getAmountMax(),
+                priceItemJpa.getDurationMinutes());
     }
 
     private static OpeningHours toOpeningHours(OpeningHoursJpa jpa) {
@@ -211,6 +212,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                     .priceType(item.priceType())
                     .amountMin(item.amountMin())
                     .amountMax(item.amountMax())
+                    .durationMinutes(item.durationMinutes())
                     .position(position++)
                     .build());
         }

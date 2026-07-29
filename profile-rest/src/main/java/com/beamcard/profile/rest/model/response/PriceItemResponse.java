@@ -4,9 +4,11 @@ import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.PriceType;
 import java.math.BigDecimal;
 
-public record PriceItemResponse(String name, PriceType priceType, BigDecimal amountMin, BigDecimal amountMax) {
+public record PriceItemResponse(
+        String name, PriceType priceType, BigDecimal amountMin, BigDecimal amountMax, Integer durationMinutes) {
 
     public static PriceItemResponse of(PriceItem item) {
-        return new PriceItemResponse(item.name(), item.priceType(), item.amountMin(), item.amountMax());
+        return new PriceItemResponse(
+                item.name(), item.priceType(), item.amountMin(), item.amountMax(), item.durationMinutes());
     }
 }

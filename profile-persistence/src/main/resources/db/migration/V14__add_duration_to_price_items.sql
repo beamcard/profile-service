@@ -1,0 +1,1 @@
+ALTER TABLE price_items ADD COLUMN duration_minutes INT NOT NULL DEFAULT 60;
