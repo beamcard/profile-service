@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.model.request;
 
+import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Currency;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
@@ -14,4 +15,5 @@ public record UpdateProfileRequest(
         @Valid List<AffiliationRequest> affiliations,
         List<@Size(max = 60) String> activities,
         Currency currency,
-        @Valid List<PriceItemRequest> priceItems) {}
+        @Valid List<PriceItemRequest> priceItems,
+        AccentColor accentColor) {}

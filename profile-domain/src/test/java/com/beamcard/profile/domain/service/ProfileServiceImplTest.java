@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
+import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
@@ -149,6 +150,7 @@ class ProfileServiceImplTest {
                         List.of(affiliation),
                         null,
                         null,
+                        null,
                         null));
 
         assertThat(result.getDisplayName()).isEqualTo("New name");
@@ -179,7 +181,9 @@ class ProfileServiceImplTest {
                 new PriceItem("Consultation", PriceType.EXACT, new BigDecimal("50.00"), null),
                 new PriceItem("Full project", PriceType.RANGE, new BigDecimal("500"), new BigDecimal("1200")));
         Profile result = service.update(
-                userId, "alice", new UpdateProfileCommand(null, null, null, null, null, null, Currency.EUR, items));
+                userId,
+                "alice",
+                new UpdateProfileCommand(null, null, null, null, null, null, Currency.EUR, items, null));
 
         assertThat(result.getCurrency()).isEqualTo(Currency.EUR);
         assertThat(result.getPriceItems()).hasSize(2);
@@ -200,8 +204,27 @@ class ProfileServiceImplTest {
         when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Profile result = service.update(
-                userId, "alice", new UpdateProfileCommand("New name", null, null, null, null, null, null, null));
+                userId, "alice", new UpdateProfileCommand("New name", null, null, null, null, null, null, null, null));
 
         assertThat(result.getCurrency()).isEqualTo(Currency.UAH);
+    }
+
+    @Test
+    void update_appliesAccentColor() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .accentColor(AccentColor.INDIGO)
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Profile result = service.update(
+                userId,
+                "alice",
+                new UpdateProfileCommand(null, null, null, null, null, null, null, null, AccentColor.ROSE));
+
+        assertThat(result.getAccentColor()).isEqualTo(AccentColor.ROSE);
     }
 }

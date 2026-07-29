@@ -15,6 +15,7 @@ import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AwardJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.LinkJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.OpeningHoursJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.PriceItemJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -41,6 +42,7 @@ public class PersistenceConfig {
             AffiliationJpaRepository affiliationJpaRepository,
             ActivityJpaRepository activityJpaRepository,
             PriceItemJpaRepository priceItemJpaRepository,
+            OpeningHoursJpaRepository openingHoursJpaRepository,
             ProfilePersistenceMapper profilePersistenceMapper) {
         return new ProfileRepositoryImpl(
                 profileJpaRepository,
@@ -48,6 +50,7 @@ public class PersistenceConfig {
                 affiliationJpaRepository,
                 activityJpaRepository,
                 priceItemJpaRepository,
+                openingHoursJpaRepository,
                 profilePersistenceMapper);
     }
 

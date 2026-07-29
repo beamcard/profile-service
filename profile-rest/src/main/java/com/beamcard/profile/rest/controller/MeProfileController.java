@@ -6,6 +6,7 @@ import static com.beamcard.profile.rest.utils.JwtClaimsUtil.username;
 
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.OpeningHours;
 import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.service.AwardService;
@@ -16,6 +17,7 @@ import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import com.beamcard.profile.domain.storage.MediaStorage;
 import com.beamcard.profile.rest.model.request.AffiliationRequest;
 import com.beamcard.profile.rest.model.request.LocationRequest;
+import com.beamcard.profile.rest.model.request.OpeningHoursRequest;
 import com.beamcard.profile.rest.model.request.PriceItemRequest;
 import com.beamcard.profile.rest.model.request.UpdateProfileRequest;
 import com.beamcard.profile.rest.model.response.AwardResponse;
@@ -69,7 +71,8 @@ public class MeProfileController {
                         toAffiliations(request.affiliations()),
                         request.activities(),
                         request.currency(),
-                        toPriceItems(request.priceItems())));
+                        toPriceItems(request.priceItems()),
+                        request.accentColor()));
         return toResponse(profile);
     }
 
@@ -92,7 +95,8 @@ public class MeProfileController {
             return null;
         }
         return requests.stream()
-                .map(r -> new Affiliation(r.role(), r.organization(), r.address(), r.description()))
+                .map(r -> new Affiliation(
+                        r.role(), r.organization(), r.address(), r.description(), toOpeningHours(r.openingHours())))
                 .toList();
     }
 
@@ -102,6 +106,15 @@ public class MeProfileController {
         }
         return requests.stream()
                 .map(r -> new PriceItem(r.name(), r.priceType(), r.amountMin(), r.amountMax()))
+                .toList();
+    }
+
+    private static List<OpeningHours> toOpeningHours(List<OpeningHoursRequest> requests) {
+        if (requests == null) {
+            return null;
+        }
+        return requests.stream()
+                .map(r -> new OpeningHours(r.day(), r.open(), r.close()))
                 .toList();
     }
 }

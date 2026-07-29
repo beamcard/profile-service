@@ -1,5 +1,6 @@
 package com.beamcard.profile.domain.service;
 
+import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
@@ -30,5 +31,6 @@ public interface ProfileService {
             List<Affiliation> affiliations,
             List<String> activities,
             Currency currency,
-            List<PriceItem> priceItems) {}
+            List<PriceItem> priceItems,
+            AccentColor accentColor) {}
 }

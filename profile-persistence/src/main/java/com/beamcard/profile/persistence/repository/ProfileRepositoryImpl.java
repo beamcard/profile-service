@@ -2,17 +2,20 @@ package com.beamcard.profile.persistence.repository;
 
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.OpeningHours;
 import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.persistence.mapper.ProfilePersistenceMapper;
 import com.beamcard.profile.persistence.model.ActivityJpa;
 import com.beamcard.profile.persistence.model.AffiliationJpa;
+import com.beamcard.profile.persistence.model.OpeningHoursJpa;
 import com.beamcard.profile.persistence.model.PriceItemJpa;
 import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
 import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.OpeningHoursJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.PriceItemJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -30,6 +33,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     private final AffiliationJpaRepository affiliationRepository;
     private final ActivityJpaRepository activityRepository;
     private final PriceItemJpaRepository priceItemRepository;
+    private final OpeningHoursJpaRepository openingHoursRepository;
     private final ProfilePersistenceMapper mapper;
 
     @Override
@@ -77,7 +81,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
 
     private List<Affiliation> loadAffiliations(UUID profileId) {
         return affiliationRepository.findByProfileIdOrderByPositionAsc(profileId).stream()
-                .map(ProfileRepositoryImpl::toAffiliation)
+                .map(this::toAffiliation)
                 .toList();
     }
 
@@ -93,16 +97,23 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .toList();
     }
 
+    private List<OpeningHours> loadOpeningHours(UUID affiliationId) {
+        return openingHoursRepository.findByAffiliationIdOrderByPositionAsc(affiliationId).stream()
+                .map(ProfileRepositoryImpl::toOpeningHours)
+                .toList();
+    }
+
     private static Location toLocation(ProfileLocationJpa locationJpa) {
         return new Location(locationJpa.getCountry(), locationJpa.getCity());
     }
 
-    private static Affiliation toAffiliation(AffiliationJpa affiliationJpa) {
+    private Affiliation toAffiliation(AffiliationJpa affiliationJpa) {
         return new Affiliation(
                 affiliationJpa.getRole(),
                 affiliationJpa.getOrganization(),
                 affiliationJpa.getAddress(),
-                affiliationJpa.getDescription());
+                affiliationJpa.getDescription(),
+                loadOpeningHours(affiliationJpa.getId()));
     }
 
     private static PriceItem toPriceItem(PriceItemJpa priceItemJpa) {
@@ -111,6 +122,10 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 priceItemJpa.getPriceType(),
                 priceItemJpa.getAmountMin(),
                 priceItemJpa.getAmountMax());
+    }
+
+    private static OpeningHours toOpeningHours(OpeningHoursJpa jpa) {
+        return new OpeningHours(jpa.getDay(), jpa.getOpenTime(), jpa.getCloseTime());
     }
 
     private void saveLocation(UUID profileId, Location location) {
@@ -131,18 +146,38 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     private void replaceAffiliations(UUID profileId, List<Affiliation> affiliations) {
-        affiliationRepository.deleteByProfileId(profileId);
+        affiliationRepository.deleteByProfileId(profileId); // cascade removes their opening_hours
         int position = 0;
         for (Affiliation affiliation : affiliations) {
             if (affiliation == null || affiliation.isEmpty()) {
                 continue;
             }
-            affiliationRepository.save(AffiliationJpa.builder()
+            AffiliationJpa saved = affiliationRepository.save(AffiliationJpa.builder()
                     .profileId(profileId)
                     .role(blankToNull(affiliation.role()))
                     .organization(blankToNull(affiliation.organization()))
                     .address(blankToNull(affiliation.address()))
                     .description(blankToNull(affiliation.description()))
+                    .position(position++)
+                    .build());
+            saveOpeningHours(saved.getId(), affiliation.openingHours());
+        }
+    }
+
+    private void saveOpeningHours(UUID affiliationId, List<OpeningHours> openingHours) {
+        if (openingHours == null) {
+            return;
+        }
+        int position = 0;
+        for (OpeningHours hours : openingHours) {
+            if (hours == null || hours.isEmpty()) {
+                continue;
+            }
+            openingHoursRepository.save(OpeningHoursJpa.builder()
+                    .affiliationId(affiliationId)
+                    .day(hours.day())
+                    .openTime(hours.open().trim())
+                    .closeTime(hours.close().trim())
                     .position(position++)
                     .build());
         }

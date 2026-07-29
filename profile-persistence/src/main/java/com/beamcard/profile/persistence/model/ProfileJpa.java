@@ -1,5 +1,6 @@
 package com.beamcard.profile.persistence.model;
 
+import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,6 +59,10 @@ public class ProfileJpa {
     @Column(name = "currency", nullable = false)
     private Currency currency;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "accent_color", nullable = false)
+    private AccentColor accentColor;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -76,6 +81,9 @@ public class ProfileJpa {
         }
         if (currency == null) {
             currency = Currency.USD;
+        }
+        if (accentColor == null) {
+            accentColor = AccentColor.INDIGO;
         }
     }
 

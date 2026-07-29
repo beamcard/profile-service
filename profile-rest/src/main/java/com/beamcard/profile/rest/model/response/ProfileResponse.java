@@ -1,5 +1,6 @@
 package com.beamcard.profile.rest.model.response;
 
+import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Link;
@@ -20,6 +21,7 @@ public record ProfileResponse(
         List<String> activities,
         Currency currency,
         List<PriceItemResponse> priceItems,
+        AccentColor accentColor,
         String avatarUrl,
         Instant createdAt,
         Instant updatedAt,
@@ -42,6 +44,7 @@ public record ProfileResponse(
                 activities,
                 profile.getCurrency(),
                 priceItems.stream().map(PriceItemResponse::of).toList(),
+                profile.getAccentColor(),
                 avatarUrl,
                 profile.getCreatedAt(),
                 profile.getUpdatedAt(),

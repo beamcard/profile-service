@@ -1,9 +1,12 @@
 package com.beamcard.profile.rest.model.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public record AffiliationRequest(
         @Size(max = 80) String role,
         @Size(max = 120) String organization,
         @Size(max = 200) String address,
-        @Size(max = 300) String description) {}
+        @Size(max = 300) String description,
+        @Valid List<OpeningHoursRequest> openingHours) {}
