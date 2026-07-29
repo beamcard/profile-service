@@ -14,6 +14,7 @@ import com.beamcard.profile.persistence.model.ProfileJpa;
 import com.beamcard.profile.persistence.model.ProfileLocationJpa;
 import com.beamcard.profile.persistence.repository.jpa.ActivityJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.AffiliationJpaRepository;
+import com.beamcard.profile.persistence.repository.jpa.OpeningHoursJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.PriceItemJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileJpaRepository;
 import com.beamcard.profile.persistence.repository.jpa.ProfileLocationJpaRepository;
@@ -46,6 +47,9 @@ class ProfileRepositoryImplTest {
     @Mock
     PriceItemJpaRepository priceItemRepository;
 
+    @Mock
+    OpeningHoursJpaRepository openingHoursRepository;
+
     final ProfilePersistenceMapper mapper = Mappers.getMapper(ProfilePersistenceMapper.class);
 
     ProfileRepositoryImpl repository;
@@ -61,6 +65,7 @@ class ProfileRepositoryImplTest {
                 affiliationRepository,
                 activityRepository,
                 priceItemRepository,
+                openingHoursRepository,
                 mapper);
         profileId = UUID.randomUUID();
         userId = UUID.randomUUID();
@@ -134,6 +139,7 @@ class ProfileRepositoryImplTest {
                         new Affiliation(null, "PowerHouse", null, null)))
                 .build();
         when(jpaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(affiliationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(locationRepository.findById(profileId)).thenReturn(Optional.empty());
         when(affiliationRepository.findByProfileIdOrderByPositionAsc(profileId)).thenReturn(List.of());
 
