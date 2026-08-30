@@ -159,7 +159,7 @@ class MeProfileControllerTest {
                                 .with(aliceToken())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
-                                        "{\"currency\":\"EUR\",\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50.00},{\"name\":\"Full project\",\"price_type\":\"RANGE\",\"amount_min\":500,\"amount_max\":1200}]}"))
+                                        "{\"currency\":\"EUR\",\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50.00,\"duration_minutes\":60},{\"name\":\"Full project\",\"price_type\":\"RANGE\",\"amount_min\":500,\"amount_max\":1200,\"duration_minutes\":90}]}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currency").value("EUR"))
                 .andExpect(jsonPath("$.price_items[0].name").value("Consultation"))
@@ -183,7 +183,7 @@ class MeProfileControllerTest {
                                 .with(aliceToken())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
-                                        "{\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50,\"amount_max\":90}]}"))
+                                        "{\"price_items\":[{\"name\":\"Consultation\",\"price_type\":\"EXACT\",\"amount_min\":50,\"amount_max\":90,\"duration_minutes\":60}]}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.code").value("validation_failed"));

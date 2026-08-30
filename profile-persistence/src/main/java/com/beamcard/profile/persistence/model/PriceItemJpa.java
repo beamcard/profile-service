@@ -47,6 +47,9 @@ public class PriceItemJpa {
     @Column(name = "amount_max", precision = 12, scale = 2)
     private BigDecimal amountMax;
 
+    @Column(name = "duration_minutes", nullable = false)
+    private Integer durationMinutes;
+
     @Column(name = "position", nullable = false)
     private int position;
 }

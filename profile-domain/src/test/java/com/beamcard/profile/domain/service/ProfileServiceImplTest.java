@@ -7,17 +7,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.beamcard.profile.domain.exception.InvalidHoursException;
+import com.beamcard.profile.domain.exception.OverlappingHoursException;
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import com.beamcard.profile.domain.model.AccentColor;
 import com.beamcard.profile.domain.model.Affiliation;
 import com.beamcard.profile.domain.model.Currency;
 import com.beamcard.profile.domain.model.Location;
+import com.beamcard.profile.domain.model.OpeningHours;
 import com.beamcard.profile.domain.model.PriceItem;
 import com.beamcard.profile.domain.model.PriceType;
 import com.beamcard.profile.domain.model.Profile;
 import com.beamcard.profile.domain.repository.ProfileRepository;
 import com.beamcard.profile.domain.service.ProfileService.UpdateProfileCommand;
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -164,6 +168,88 @@ class ProfileServiceImplTest {
         assertThat(result.getAffiliations().getFirst().address()).isEqualTo("Stephansplatz 1");
         assertThat(result.getAffiliations().getFirst().description()).isEqualTo("Entrance B");
         assertThat(result.getUsername()).isEqualTo("alice");
+    }
+
+    @Test
+    void update_rejectsHoursOverlappingAcrossWorkplaces() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+        // Two workplaces both open Monday, overlapping (09:00–12:00 vs 10:00–17:00).
+        Affiliation wp1 = new Affiliation(
+                "Coach", "Gym A", null, null, List.of(new OpeningHours(DayOfWeek.MONDAY, "09:00", "12:00")));
+        Affiliation wp2 = new Affiliation(
+                "Coach", "Gym B", null, null, List.of(new OpeningHours(DayOfWeek.MONDAY, "10:00", "17:00")));
+
+        assertThatThrownBy(() -> service.update(userId, "alice", affiliationsCommand(List.of(wp1, wp2))))
+                .isInstanceOf(OverlappingHoursException.class);
+        verify(profileRepository, never()).save(any());
+    }
+
+    @Test
+    void update_allowsTouchingHoursAcrossWorkplaces() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // Monday 09:00–12:00 then 12:00–17:00 — adjacent, not overlapping.
+        Affiliation wp1 = new Affiliation(
+                "Coach", "Gym A", null, null, List.of(new OpeningHours(DayOfWeek.MONDAY, "09:00", "12:00")));
+        Affiliation wp2 = new Affiliation(
+                "Coach", "Gym B", null, null, List.of(new OpeningHours(DayOfWeek.MONDAY, "12:00", "17:00")));
+
+        Profile result = service.update(userId, "alice", affiliationsCommand(List.of(wp1, wp2)));
+        assertThat(result.getAffiliations()).hasSize(2);
+    }
+
+    @Test
+    void update_rejectsMalformedHours() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+        // Close before open — not a valid interval.
+        Affiliation wp = new Affiliation(
+                "Coach", "Gym", null, null, List.of(new OpeningHours(DayOfWeek.MONDAY, "12:00", "09:00")));
+
+        assertThatThrownBy(() -> service.update(userId, "alice", affiliationsCommand(List.of(wp))))
+                .isInstanceOf(InvalidHoursException.class);
+        verify(profileRepository, never()).save(any());
+    }
+
+    @Test
+    void update_savesMultipleWorkplaces() {
+        Profile existing = Profile.builder()
+                .id(UUID.randomUUID())
+                .userId(userId)
+                .username("alice")
+                .build();
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // No per-account location cap — any number of workplaces may be saved.
+        Affiliation wp1 = new Affiliation("Coach", "Gym A", null, null);
+        Affiliation wp2 = new Affiliation("Coach", "Gym B", null, null);
+
+        Profile result = service.update(userId, "alice", affiliationsCommand(List.of(wp1, wp2)));
+
+        assertThat(result.getAffiliations()).hasSize(2);
+        verify(profileRepository).save(any());
+    }
+
+    private static UpdateProfileCommand affiliationsCommand(List<Affiliation> affiliations) {
+        return new UpdateProfileCommand(null, null, null, null, affiliations, null, null, null, null);
     }
 
     @Test
