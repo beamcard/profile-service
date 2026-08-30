@@ -3,8 +3,10 @@ package com.beamcard.profile.rest.exception;
 import com.beamcard.profile.domain.exception.AwardNotFoundException;
 import com.beamcard.profile.domain.exception.InvalidAvatarException;
 import com.beamcard.profile.domain.exception.InvalidAwardException;
+import com.beamcard.profile.domain.exception.InvalidHoursException;
 import com.beamcard.profile.domain.exception.InvalidShowcaseException;
 import com.beamcard.profile.domain.exception.LinkNotFoundException;
+import com.beamcard.profile.domain.exception.OverlappingHoursException;
 import com.beamcard.profile.domain.exception.ProfileNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -61,6 +63,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail handleInvalidShowcase(InvalidShowcaseException ex) {
         log.debug("Invalid showcase: {}", ex.getMessage());
         return problem(HttpStatus.BAD_REQUEST, "invalid_showcase", ex.getMessage());
+    }
+
+    @ExceptionHandler(OverlappingHoursException.class)
+    ProblemDetail handleOverlappingHours(OverlappingHoursException ex) {
+        log.debug("Overlapping hours: {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "overlapping_hours", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidHoursException.class)
+    ProblemDetail handleInvalidHours(InvalidHoursException ex) {
+        log.debug("Invalid hours: {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "invalid_hours", ex.getMessage());
     }
 
     @Override
